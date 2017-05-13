@@ -13,3 +13,5 @@
 #if <branch> omitted, master is assumed, and the default value for <commit> is HEAD.
 
 https://github.com/go-sql-driver/mysql
+https://github.com/xrfang/go-conf
+https://github.com/pquerna/otp
