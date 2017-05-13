@@ -1,0 +1,12 @@
+##Default service port is 80 for HTTP, 443 for HTTPS
+#SERVICE_PORT=
+
+##If both TLS certificate and private key are provided, enable HTTPS,
+##otherwise serve via plain HTTP.
+#TLS_CERT=
+#TLS_PKEY=
+
+# http request timeout
+READ_TIMEOUT=60
+# http response timeout
+WRITE_TIMEOUT=60
