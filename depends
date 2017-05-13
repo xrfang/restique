@@ -1,0 +1,15 @@
+# Dependency Specification
+
+#format:
+
+#<git-url> [<branch>][@<commit>]
+
+## specify <git-url> in any of the following 3 forms:
+#
+# 1. git@your.repo.addr:your/proj.git (use GIT via SSH)
+# 2. http://your.repo.addr/your/proj (use GIT via HTTP/HTTPS)
+# 3. your.repo.addr/your/proj (use GO GET)
+
+#if <branch> omitted, master is assumed, and the default value for <commit> is HEAD.
+
+https://github.com/go-sql-driver/mysql
