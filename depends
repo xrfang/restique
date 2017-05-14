@@ -18,3 +18,4 @@ https://github.com/pquerna/otp
 https://github.com/boombuler/barcode
 https://github.com/mdp/qrterminal
 https://github.com/mdp/rsc
+golang.org/x/crypto/bcrypt

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"gopass"
 	"net/http"
 	"os"
 	"time"
@@ -67,7 +68,14 @@ func main() {
 		rc.AUTH_PATH = *auth_path
 	}
 	if *user != "" {
-		SetAuth(*user, *pass)
+		pswd := *pass
+		if *pass == "" {
+			var err error
+			prompt := fmt.Sprintf("Enter password for %s: ", *user)
+			pswd, err = gopass.GetPass(prompt)
+			assert(err)
+		}
+		SetAuth(*user, pswd)
 		return
 	}
 	LoadAuthDb()

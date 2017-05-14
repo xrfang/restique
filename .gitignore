@@ -1,3 +1,4 @@
 bin/*
 github.com
+golang.org
 src/restique/restique

@@ -29,10 +29,7 @@ func login(args url.Values) interface{} {
 	if !ok {
 		return fail
 	}
-	if ai.Secret != "" && !ai.Validate(code) {
-		return fail
-	}
-	if ai.Pass != "" && ai.Pass != pass {
+	if !ai.Validate(pass, code) {
 		return fail
 	}
 	return nil

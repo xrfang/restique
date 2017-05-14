@@ -7,6 +7,7 @@ import (
 	"github.com/mdp/qrterminal"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type authInfo struct {
@@ -15,8 +16,14 @@ type authInfo struct {
 	Secret string `json:"secret"`
 }
 
-func (ai authInfo) Validate(code string) bool {
-	return totp.Validate(code, ai.Secret)
+func (ai authInfo) Validate(pass, code string) bool {
+	if !totp.Validate(code, ai.Secret) {
+		return false
+	}
+	if ai.Pass == "" {
+		return true
+	}
+	return nil == bcrypt.CompareHashAndPassword([]byte(ai.Pass), []byte(pass))
 }
 
 var authDb map[string]authInfo
@@ -36,7 +43,12 @@ func SetAuth(user, pass string) {
 	assert(err)
 	ai := authDb[user]
 	ai.Name = user
-	ai.Pass = pass
+	ai.Pass = ""
+	if pass != "" {
+		hash, err := bcrypt.GenerateFromPassword([]byte(pass), 12)
+		assert(err)
+		ai.Pass = string(hash)
+	}
 	ai.Secret = key.Secret()
 	authDb[user] = ai
 	f, err := os.Create(rc.AUTH_PATH)
