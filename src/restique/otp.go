@@ -33,7 +33,7 @@ func SetAuth(user, pass string) {
 	ai.Pass = pass
 	ai.Secret = key.Secret()
 	authDb[user] = ai
-	f, err := os.Create(rc.USER_DATABASE)
+	f, err := os.Create(rc.AUTH_PATH)
 	assert(err)
 	defer f.Close()
 	enc := json.NewEncoder(f)
@@ -44,7 +44,7 @@ func SetAuth(user, pass string) {
 }
 
 func LoadAuthDb() {
-	f, err := os.Open(rc.USER_DATABASE)
+	f, err := os.Open(rc.AUTH_PATH)
 	assert(err)
 	defer f.Close()
 	dec := json.NewDecoder(f)

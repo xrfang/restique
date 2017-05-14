@@ -6,11 +6,11 @@
 #TLS_PKEY=
 
 # http request timeout
-READ_TIMEOUT=60
+#READ_TIMEOUT=60
 # http response timeout
-WRITE_TIMEOUT=60
+#WRITE_TIMEOUT=60
 # authenticated session timeout after
 #IDLE_TIMEOUT=600
 
-# If not specified, restique stores user data in ./restique.json
-USER_DATABASE=
+# If not specified, restique stores user data in ./restique_auth.json
+AUTH_PATH=
