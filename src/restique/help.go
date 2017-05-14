@@ -51,6 +51,7 @@ var eps []endPoint = []endPoint{
 	endPoint{
 		EndPoint: "/query",
 		Purpose:  "execute SQL query",
+		Note:     "alternative form: /query/<use>/<sql>",
 		Args: []epArg{
 			epArg{
 				Name: "use",
