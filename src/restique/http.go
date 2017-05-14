@@ -106,7 +106,6 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 				http.Error(w, e.(error).Error(), http.StatusInternalServerError)
 			}
 		}()
-		//TODO: access control
 		if !sessions.SessionOK(r) {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
@@ -118,6 +117,7 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 		} else {
 			args = r.URL.Query()
 		}
+		args["REQUEST_URL_PATH"] = []string{r.URL.Path}
 		data := proc(args)
 		if e, ok := data.(httpError); ok {
 			http.Error(w, e.Error(), e.Code)

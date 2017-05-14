@@ -1,7 +1,9 @@
 package main
 
 import (
+	"net/http"
 	"net/url"
+	"strings"
 )
 
 type epArg struct {
@@ -51,8 +53,8 @@ var eps []endPoint = []endPoint{
 		Purpose:  "execute SQL query",
 		Args: []epArg{
 			epArg{
-				Name: "conn",
-				Hint: "connection name",
+				Name: "use",
+				Hint: "name of connection to use",
 			},
 			epArg{
 				Name: "sql",
@@ -66,6 +68,20 @@ var eps []endPoint = []endPoint{
 	},
 }
 
-func help(url.Values) interface{} {
-	return eps
+func help(args url.Values) interface{} {
+	path := val(args, "REQUEST_URL_PATH")
+	if path == "/" {
+		return eps
+	}
+	if strings.HasPrefix(path, "/query/") {
+		args := strings.SplitN(path[7:], "/", 2)
+		return query(map[string][]string{
+			"use": []string{args[0]},
+			"sql": []string{args[1]},
+		})
+	}
+	return httpError{
+		Code: http.StatusNotFound,
+		Mesg: "not found: " + path,
+	}
 }
