@@ -13,11 +13,15 @@ type endPoint struct {
 	EndPoint string  `json:"endpoint"`
 	Purpose  string  `json:"purpose"`
 	Note     string  `json:"note,omitempty"`
-	Args     []epArg `json:"args"`
+	Args     []epArg `json:"args,omitempty"`
 	Returns  []epArg `json:"returns,omitempty"`
 }
 
 var eps []endPoint = []endPoint{
+	endPoint{
+		EndPoint: "/conns",
+		Purpose:  "list available database connections",
+	},
 	endPoint{
 		EndPoint: "/login",
 		Purpose:  "user authentication",
@@ -47,8 +51,8 @@ var eps []endPoint = []endPoint{
 		Purpose:  "execute SQL query",
 		Args: []epArg{
 			epArg{
-				Name: "use",
-				Hint: "database name",
+				Name: "conn",
+				Hint: "connection name",
 			},
 			epArg{
 				Name: "sql",
@@ -59,7 +63,6 @@ var eps []endPoint = []endPoint{
 	endPoint{
 		EndPoint: "/version",
 		Purpose:  "show version info",
-		Args:     []epArg{},
 	},
 }
 

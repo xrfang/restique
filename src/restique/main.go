@@ -71,6 +71,7 @@ func main() {
 		return
 	}
 	LoadAuthDb()
+	LoadDSNs()
 
 	if *service_port != "" {
 		rc.SERVICE_PORT = *service_port
@@ -105,6 +106,7 @@ func main() {
 	mux.HandleFunc("/version", handler(version))
 	mux.HandleFunc("/login", handler(login))
 	mux.HandleFunc("/query", handler(query))
+	mux.HandleFunc("/conns", handler(conns))
 
 	svr := http.Server{
 		Addr:         ":" + rc.SERVICE_PORT,
