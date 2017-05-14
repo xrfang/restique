@@ -48,13 +48,13 @@ func query(args url.Values) (res interface{}) {
 		ptr[i] = &raw[i]
 	}
 
-	var recs []map[string]string
+	recs := []map[string]interface{}{}
 	RangeRows(rows, func() {
 		assert(rows.Scan(ptr...))
-		rec := map[string]string{}
+		rec := map[string]interface{}{}
 		for i, r := range raw {
 			if r == nil {
-				rec[cols[i]] = "\\N"
+				rec[cols[i]] = nil
 			} else {
 				rec[cols[i]] = string(r)
 			}
