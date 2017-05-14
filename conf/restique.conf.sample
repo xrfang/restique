@@ -1,19 +1,24 @@
 #SERVICE_PORT=32779
 
-##If both TLS certificate and private key are provided, enable HTTPS,
-##otherwise serve via plain HTTP.
-#TLS_CERT=
-#TLS_PKEY=
+## If both TLS certificate and private key are provided, enable HTTPS,
+## otherwise serve via plain HTTP.
+TLS_CERT=
+TLS_PKEY=
 
-# http request timeout
+## http request timeout
 #READ_TIMEOUT=60
-# http response timeout
+## http response timeout
 #WRITE_TIMEOUT=60
-# authenticated session timeout after
+## authenticated session timeout after
 #IDLE_TIMEOUT=600
 
-# If not specified, restique stores user data in ./restique_auth.json
+## If not specified, restique stores user data in ./restique_auth.json
 AUTH_PATH=
 
-# If not specified, restique stores DSN info in ./restique_dsns.conf
+## If not specified, restique stores DSN info in ./restique_dsns.json
 DSN_PATH=
+
+## OTP specific settings
+#OTP_DIGITS=6
+#OTP_ISSUER=restique
+#OTP_TIMEOUT=30

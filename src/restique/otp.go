@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/mdp/qrterminal"
+	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 )
 
@@ -25,7 +26,12 @@ func init() {
 }
 
 func SetAuth(user, pass string) {
-	gopts := totp.GenerateOpts{Issuer: self, AccountName: user}
+	gopts := totp.GenerateOpts{
+		AccountName: user,
+		Digits:      otp.Digits(rc.OTP_DIGITS),
+		Issuer:      rc.OTP_ISSUER,
+		Period:      rc.OTP_TIMEOUT,
+	}
 	key, err := totp.Generate(gopts)
 	assert(err)
 	ai := authDb[user]

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"net/http"
@@ -29,6 +30,9 @@ func main() {
 	idle_timeout := flag.Int("idle-timeout", 0, "session idle timeout")
 	read_timeout := flag.Int("read-timeout", 0, "timeout for HTTP request")
 	write_timeout := flag.Int("write-timeout", 0, "timeout for HTTP reply")
+	otp_digits := flag.Int("otp-digits", 0, "OTP code length (6~8 recommended)")
+	otp_issuer := flag.String("otp-issuer", "", "OTP issuer for information purpose")
+	otp_timeout := flag.Uint("otp-timeout", 0, "OTP code lifetime (30~60 recommended)")
 	flag.Parse()
 
 	rc = parseConfig(*conf)
@@ -40,20 +44,21 @@ func main() {
 		fmt.Printf("DSN configuration: %s\n", rc.DSN_PATH)
 		_, err := os.Stat(rc.DSN_PATH)
 		if err == nil {
-			fmt.Println("file already exists, cannot create new template.")
+			fmt.Println("file already exists, abort.")
 			return
 		}
 		f, err := os.Create(rc.DSN_PATH)
 		assert(err)
 		defer f.Close()
-		_, err = f.WriteString(`## DSNs are specified in the following format
-#
-# <dbname>=mysql,<dsn-string>
-#
-# where <dbname> can be empty, which means the default DSN, used when calling
-# /query without the [use] parameter. If same <dbname> is specified more than
-# once, the last one takes precedence.`)
-		assert(err)
+		enc := json.NewEncoder(f)
+		enc.SetIndent("", "    ")
+		assert(enc.Encode(map[string]map[string]string{
+			"sample_conn": map[string]string{
+				"driver": "mysql",
+				"dsn":    "connection string",
+				"memo":   "a placeholder connection",
+			},
+		}))
 		fmt.Println("template created.")
 		return
 	}
@@ -84,6 +89,15 @@ func main() {
 	}
 	if *write_timeout > 0 {
 		rc.WRITE_TIMEOUT = *write_timeout
+	}
+	if *otp_digits > 0 {
+		rc.OTP_DIGITS = *otp_digits
+	}
+	if *otp_issuer != "" {
+		rc.OTP_ISSUER = *otp_issuer
+	}
+	if *otp_timeout > 0 {
+		rc.OTP_TIMEOUT = *otp_timeout
 	}
 
 	mux := http.NewServeMux()
