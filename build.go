@@ -97,9 +97,16 @@ func updDepends(deps []depSpec, full bool) (depRoots []string) {
 		rs[root] = 1
 		cd := path.Join(PROJ_SRC, repo.path)
 		fi, err := os.Stat(path.Join(cd, ".git"))
-		if err == nil && fi.IsDir() && !full {
+		if err == nil && fi.IsDir() {
+		    if !full {
 			fmt.Println(" ...skipped")
 			continue
+		    }
+		    err := exec.Command("rm", "-fr", cd).Run()
+		    if err != nil {
+			    fmt.Printf("\nFAILED: rm -fr %s (%v)\n", cd, err)
+			    os.Exit(1)
+		    }
 		}
 		fmt.Printf("\n")
 		if !repo.isGit {
