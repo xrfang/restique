@@ -1,5 +1,4 @@
-##Default service port is 80 for HTTP, 443 for HTTPS
-#SERVICE_PORT=
+#SERVICE_PORT=32779
 
 ##If both TLS certificate and private key are provided, enable HTTPS,
 ##otherwise serve via plain HTTP.
@@ -10,3 +9,8 @@
 READ_TIMEOUT=60
 # http response timeout
 WRITE_TIMEOUT=60
+# authenticated session timeout after
+#IDLE_TIMEOUT=600
+
+# If not specified, restique stores user data in ./restique.json
+USER_DATABASE=
