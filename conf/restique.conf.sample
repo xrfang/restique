@@ -14,3 +14,6 @@
 
 # If not specified, restique stores user data in ./restique_auth.json
 AUTH_PATH=
+
+# If not specified, restique stores DSN info in ./restique_dsns.conf
+DSN_PATH=

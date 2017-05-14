@@ -19,11 +19,6 @@ type endPoint struct {
 
 var eps []endPoint = []endPoint{
 	endPoint{
-		EndPoint: "/version",
-		Purpose:  "show version info",
-		Args:     []epArg{},
-	},
-	endPoint{
 		EndPoint: "/login",
 		Purpose:  "user authentication",
 		Args: []epArg{
@@ -46,6 +41,25 @@ var eps []endPoint = []endPoint{
 				Hint: "session ID (will also be sent via cookie)",
 			},
 		},
+	},
+	endPoint{
+		EndPoint: "/query",
+		Purpose:  "execute SQL query",
+		Args: []epArg{
+			epArg{
+				Name: "use",
+				Hint: "database name",
+			},
+			epArg{
+				Name: "sql",
+				Hint: "SQL statement (query only)",
+			},
+		},
+	},
+	endPoint{
+		EndPoint: "/version",
+		Purpose:  "show version info",
+		Args:     []epArg{},
 	},
 }
 

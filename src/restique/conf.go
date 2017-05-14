@@ -12,6 +12,7 @@ type restiqueConf struct {
 	TLS_CERT      string
 	TLS_PKEY      string
 	AUTH_PATH     string
+	DSN_PATH      string
 	IDLE_TIMEOUT  int
 	READ_TIMEOUT  int
 	WRITE_TIMEOUT int
@@ -26,7 +27,10 @@ func parseConfig(fn string) (rc restiqueConf) {
 		assert(conf.ParseFile(fn, &rc))
 	}
 	if rc.AUTH_PATH == "" {
-		rc.AUTH_PATH = "./" + self + "_auth.json"
+		rc.AUTH_PATH = "./restique_auth.json"
+	}
+	if rc.DSN_PATH == "" {
+		rc.DSN_PATH = "./restique_dsns.conf"
 	}
 	if rc.IDLE_TIMEOUT > 86400 {
 		rc.IDLE_TIMEOUT = 86400
