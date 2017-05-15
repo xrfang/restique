@@ -106,6 +106,10 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 				http.Error(w, e.(error).Error(), http.StatusInternalServerError)
 			}
 		}()
+		if AccessDenied(r) {
+			http.Error(w, "access denied", http.StatusForbidden)
+			return
+		}
 		if !sessions.SessionOK(r) {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return

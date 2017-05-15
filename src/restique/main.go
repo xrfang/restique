@@ -7,6 +7,7 @@ import (
 	"gopass"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -34,6 +35,7 @@ func main() {
 	otp_digits := flag.Int("otp-digits", 0, "OTP code length (6~8 recommended)")
 	otp_issuer := flag.String("otp-issuer", "", "OTP issuer for information purpose")
 	otp_timeout := flag.Uint("otp-timeout", 0, "OTP code lifetime (30~60 recommended)")
+	client_cidrs := flag.String("client-cidrs", "", "Access control via IP range")
 	flag.Parse()
 
 	rc = parseConfig(*conf)
@@ -107,6 +109,13 @@ func main() {
 	}
 	if *otp_timeout > 0 {
 		rc.OTP_TIMEOUT = *otp_timeout
+	}
+	if *client_cidrs != "" {
+		rc.CLIENT_CIDRS = *client_cidrs
+	}
+	rc.CLIENT_CIDRS = strings.TrimSpace(rc.CLIENT_CIDRS)
+	if len(rc.CLIENT_CIDRS) > 0 {
+		allowed_cidrs = strings.Split(rc.CLIENT_CIDRS, ",")
 	}
 
 	mux := http.NewServeMux()

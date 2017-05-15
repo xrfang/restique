@@ -22,3 +22,7 @@ DSN_PATH=
 #OTP_DIGITS=6
 #OTP_ISSUER=restique
 #OTP_TIMEOUT=30
+
+## Define CIDRs (in CSV format) to control access by remote IP. By default
+## all IPs are allowed.
+#CLIENT_CIDRS=

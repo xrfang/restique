@@ -8,6 +8,7 @@ import (
 )
 
 type restiqueConf struct {
+	CLIENT_CIDRS  string
 	SERVICE_PORT  string
 	TLS_CERT      string
 	TLS_PKEY      string

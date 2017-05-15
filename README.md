@@ -66,10 +66,17 @@ Alternatively, you may consider delete the `pass` of a user to allow OTP code
 only login.  However, remove of both password and OTP authentication is not
 allowed.
 
+### Client IP Restriction
+
+By default, RESTIQUE can be connected from any IP. It is possible to restrict
+client IP addresses via the `CLIENT_CIDRS` directive. This is a CSV of
+[CIDRs](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) which the
+client's IP address must match.
+
 ### Database Security
 
 It is strongly recommended that the DSN configured with RESTIQUE is a read-only
-connection to mitigate threats by improper usage, bugs or intrusion.
+connection to mitigate threats of improper usage, bugs or intrusion.
 
 ## Constraints
 
