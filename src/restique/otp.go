@@ -17,11 +17,11 @@ type authInfo struct {
 }
 
 func (ai authInfo) Validate(pass, code string) bool {
-	if !totp.Validate(code, ai.Secret) {
+	if ai.Secret != "" && !totp.Validate(code, ai.Secret) {
 		return false
 	}
 	if ai.Pass == "" {
-		return true
+		return ai.Secret != ""
 	}
 	return nil == bcrypt.CompareHashAndPassword([]byte(ai.Pass), []byte(pass))
 }
