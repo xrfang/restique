@@ -18,6 +18,10 @@ The build script will carry out the following steps:
 A standalone executable `bin/restique` will be generated if the build process
 succeeds.
 
+> **NOTE**: please ensure `build.go` has execution bit set and run it directly.
+Do **not** use `go run build.go` as the script relies on the directory it is
+being launched (`go run` will compile and launch it in a random temp directory).
+
 ### Running for the first time
 
 1. Run `bin/restique -dsn-init` to generate a DSN configuration template, edit
