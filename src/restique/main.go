@@ -123,6 +123,7 @@ func main() {
 	mux.HandleFunc("/version", handler(version))
 	mux.HandleFunc("/login", handler(login))
 	mux.HandleFunc("/query", handler(query))
+	mux.HandleFunc("/exec", handler(exec))
 	mux.HandleFunc("/conns", handler(conns))
 
 	svr := http.Server{

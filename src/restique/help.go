@@ -25,6 +25,21 @@ var eps []endPoint = []endPoint{
 		Purpose:  "list available database connections",
 	},
 	endPoint{
+		EndPoint: "/exec",
+		Purpose:  "execute SQL statement",
+		Note:     "alternative form: /exec/<use>/<sql>",
+		Args: []epArg{
+			epArg{
+				Name: "use",
+				Hint: "name of connection to use",
+			},
+			epArg{
+				Name: "sql",
+				Hint: "SQL statement (insert/update etc.)",
+			},
+		},
+	},
+	endPoint{
 		EndPoint: "/login",
 		Purpose:  "user authentication",
 		Args: []epArg{
@@ -74,9 +89,16 @@ func help(args url.Values) interface{} {
 	if path == "/" {
 		return eps
 	}
-	if strings.HasPrefix(path, "/query/") {
+	switch {
+	case strings.HasPrefix(path, "/query/"):
 		args := strings.SplitN(path[7:], "/", 2)
 		return query(map[string][]string{
+			"use": []string{args[0]},
+			"sql": []string{args[1]},
+		})
+	case strings.HasPrefix(path, "/exec/"):
+		args := strings.SplitN(path[6:], "/", 2)
+		return exec(map[string][]string{
 			"use": []string{args[0]},
 			"sql": []string{args[1]},
 		})
