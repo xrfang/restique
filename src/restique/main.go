@@ -36,10 +36,17 @@ func main() {
 	otp_issuer := flag.String("otp-issuer", "", "OTP issuer for information purpose")
 	otp_timeout := flag.Uint("otp-timeout", 0, "OTP code lifetime (30~60 recommended)")
 	client_cidrs := flag.String("client-cidrs", "", "Access control via IP range")
+	ver := flag.Bool("version", false, "show version info")
 	flag.Parse()
 
-	rc = parseConfig(*conf)
+	if *ver {
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "    ")
+		enc.Encode(version(nil))
+		return
+	}
 
+	rc = parseConfig(*conf)
 	if *dsn_path != "" {
 		rc.DSN_PATH = *dsn_path
 	}
