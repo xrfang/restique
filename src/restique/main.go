@@ -30,6 +30,7 @@ func main() {
 	tls_cert := flag.String("tls-cert", "", "TLS certification")
 	tls_pkey := flag.String("tls-pkey", "", "TLS private key")
 	idle_timeout := flag.Int("idle-timeout", 0, "session idle timeout")
+	session_life := flag.Int("session-life", 0, "max session lifetime")
 	read_timeout := flag.Int("read-timeout", 0, "timeout for HTTP request")
 	write_timeout := flag.Int("write-timeout", 0, "timeout for HTTP reply")
 	otp_digits := flag.Int("otp-digits", 0, "OTP code length (6~8 recommended)")
@@ -101,6 +102,15 @@ func main() {
 	}
 	if *idle_timeout > 0 {
 		rc.IDLE_TIMEOUT = *idle_timeout
+	}
+	if rc.IDLE_TIMEOUT > 3600 {
+		rc.IDLE_TIMEOUT = 3600
+	}
+	if *session_life > 0 {
+		rc.SESSION_LIFE = *session_life
+	}
+	if rc.SESSION_LIFE > 86400 {
+		rc.SESSION_LIFE = 86400
 	}
 	if *read_timeout > 0 {
 		rc.READ_TIMEOUT = *read_timeout

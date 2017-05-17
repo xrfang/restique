@@ -32,6 +32,7 @@ type session struct {
 	id string
 	ip string
 	ex time.Time
+	lt time.Time
 }
 
 type sessionStore struct {
@@ -68,10 +69,14 @@ func (ss sessionStore) NewSession(r *http.Request) string {
 	}
 	sid := string(b)
 	ip := strings.Split(r.RemoteAddr, ":")[0]
+	now := time.Now()
+	idle := time.Duration(rc.IDLE_TIMEOUT) * time.Second
+	life := time.Duration(rc.SESSION_LIFE) * time.Second
 	ss.s[sid] = session{
 		id: sid,
 		ip: ip,
-		ex: time.Now().Add(time.Duration(rc.IDLE_TIMEOUT) * time.Second),
+		ex: now.Add(idle),
+		lt: now.Add(life),
 	}
 	return sid
 }
@@ -93,7 +98,12 @@ func (ss sessionStore) SessionOK(r *http.Request) bool {
 	if s.ex.Before(time.Now()) || s.ip != ip {
 		return false
 	}
-	s.ex = time.Now().Add(time.Duration(rc.IDLE_TIMEOUT) * time.Second)
+	ex := time.Now().Add(time.Duration(rc.IDLE_TIMEOUT) * time.Second)
+	if ex.After(s.lt) {
+		s.ex = s.lt
+	} else {
+		s.ex = ex
+	}
 	ss.s[c.Value] = s
 	return true
 }

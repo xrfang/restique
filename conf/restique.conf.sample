@@ -9,8 +9,10 @@ TLS_PKEY=
 #READ_TIMEOUT=60
 ## http response timeout
 #WRITE_TIMEOUT=60
-## authenticated session timeout after
-#IDLE_TIMEOUT=600
+## authenticated session timeout after (max 3600 seconds)
+#IDLE_TIMEOUT=300
+## maximum session lifetime (cannot exceeds 86400 seconds)
+#SESSION_LIFE=3600
 
 ## If not specified, restique stores user data in ./restique_auth.json
 AUTH_PATH=
