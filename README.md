@@ -109,3 +109,4 @@ official mysql client, but operate through RESTIQUE proxy.
 * QR-Code: https://github.com/boombuler/barcode
 * QR-Code: https://github.com/mdp/qrterminal
 * BCrypt (password storage and validation): https://godoc.org/golang.org/x/crypto/bcrypt
+* gopass by John Doak (johnsiilver at gmail dot com)
