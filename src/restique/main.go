@@ -7,6 +7,7 @@ import (
 	"gopass"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 	"time"
 )
@@ -53,6 +54,8 @@ func main() {
 	if *dsn_path != "" {
 		rc.DSN_PATH = *dsn_path
 	}
+	assert(os.MkdirAll(path.Dir(rc.DSN_PATH), 0755))
+
 	if *dsn_init {
 		fmt.Printf("DSN configuration: %s\n", rc.DSN_PATH)
 		_, err := os.Stat(rc.DSN_PATH)
@@ -79,6 +82,8 @@ func main() {
 	if *auth_path != "" {
 		rc.AUTH_PATH = *auth_path
 	}
+	assert(os.MkdirAll(path.Dir(rc.AUTH_PATH), 0755))
+
 	if *user != "" {
 		pswd := *pass
 		if *pass == "" {

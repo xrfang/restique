@@ -27,6 +27,9 @@ AUTH_PATH=
 ## If not specified, restique stores DSN info in ./restique_dsns.json
 DSN_PATH=
 
+## LOGS are stored in LOG_PATH/<date>.log. If not specified, LOG_PATH=./logs
+LOG_PATH=
+
 ## OTP specific settings
 #OTP_DIGITS=6
 #OTP_ISSUER=restique

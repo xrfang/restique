@@ -1,9 +1,6 @@
 package main
 
 import (
-	"os"
-	"path"
-
 	"github.com/xrfang/go-conf"
 )
 
@@ -23,6 +20,7 @@ type restiqueConf struct {
 	WRITE_TIMEOUT int
 	QUERY_TIMEOUT int
 	QUERY_MAXROWS int
+	LOG_PATH      string
 }
 
 func parseConfig(fn string) (rc restiqueConf) {
@@ -43,6 +41,8 @@ func parseConfig(fn string) (rc restiqueConf) {
 	if rc.DSN_PATH == "" {
 		rc.DSN_PATH = "./restique_dsns.json"
 	}
-	assert(os.MkdirAll(path.Dir(rc.AUTH_PATH), 0755))
+	if rc.LOG_PATH == "" {
+		rc.LOG_PATH == "./logs"
+	}
 	return
 }
