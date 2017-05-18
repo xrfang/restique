@@ -21,6 +21,8 @@ type restiqueConf struct {
 	SESSION_LIFE  int
 	READ_TIMEOUT  int
 	WRITE_TIMEOUT int
+	QUERY_TIMEOUT int
+	QUERY_MAXROWS int
 }
 
 func parseConfig(fn string) (rc restiqueConf) {

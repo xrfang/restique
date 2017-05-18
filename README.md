@@ -82,6 +82,17 @@ client's IP address must match.
 It is strongly recommended that the DSN configured with RESTIQUE is a read-only
 connection to mitigate threats of improper usage, bugs or intrusion.
 
+## Performance
+
+RESTIQUE provides two limiting parameters: QUERY_TIMEOUT and QUERY_MAXROWS for
+the `/query` API.  They are both 0 (disabled) by default.  To ensure data
+integrity, `/exec` will not be limited by these parameters.
+
+>**IMPORTANT**: RESTIQUE does **NOT** has the ability to analyze SQL statement.
+In another word, `/query` and `/exec` has the same ability to execute any SQL
+statement that is allowed by the DSN. The only difference is that `/query`
+returns data (rows) while `/exec` returns "LastInsertId" and/or "RowsAffected".
+
 ## Constraints
 
 ### Database Support

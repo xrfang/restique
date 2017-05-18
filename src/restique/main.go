@@ -32,6 +32,8 @@ func main() {
 	idle_timeout := flag.Int("idle-timeout", 0, "session idle timeout")
 	session_life := flag.Int("session-life", 0, "max session lifetime")
 	read_timeout := flag.Int("read-timeout", 0, "timeout for HTTP request")
+	qry_timeout := flag.Int("query-timeout", 0, "timeout for executing queries")
+	qry_maxrows := flag.Int("query-maxrows", 0, "maximum rows to return for queries")
 	write_timeout := flag.Int("write-timeout", 0, "timeout for HTTP reply")
 	otp_digits := flag.Int("otp-digits", 0, "OTP code length (6~8 recommended)")
 	otp_issuer := flag.String("otp-issuer", "", "OTP issuer for information purpose")
@@ -117,6 +119,12 @@ func main() {
 	}
 	if *write_timeout > 0 {
 		rc.WRITE_TIMEOUT = *write_timeout
+	}
+	if *qry_timeout > 0 {
+		rc.QUERY_TIMEOUT = *qry_timeout
+	}
+	if *qry_maxrows > 0 {
+		rc.QUERY_MAXROWS = *qry_maxrows
 	}
 	if *otp_digits > 0 {
 		rc.OTP_DIGITS = *otp_digits

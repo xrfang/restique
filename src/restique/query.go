@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 func query(args url.Values) (res interface{}) {
@@ -37,8 +39,26 @@ func query(args url.Values) (res interface{}) {
 		assert(err)
 		ds.conn = conn
 	}
-	rows, err := ds.conn.Query(qry)
-	assert(err)
+	var (
+		rows        *sql.Rows
+		timeoutChan <-chan time.Time
+		resultChan  chan error
+	)
+	if rc.QUERY_TIMEOUT > 0 {
+		timeoutChan = time.After(time.Duration(rc.QUERY_TIMEOUT) * time.Second)
+	}
+	resultChan = make(chan error)
+	go func() {
+		var err error
+		rows, err = ds.conn.Query(qry)
+		resultChan <- err
+	}()
+	select {
+	case <-timeoutChan:
+		panic(fmt.Errorf("query timeout exceeded (%d)", rc.QUERY_TIMEOUT))
+	case err := <-resultChan:
+		assert(err)
+	}
 
 	cols, err := rows.Columns()
 	assert(err)
@@ -47,7 +67,6 @@ func query(args url.Values) (res interface{}) {
 	for i, _ := range raw {
 		ptr[i] = &raw[i]
 	}
-
 	recs := []map[string]interface{}{}
 	RangeRows(rows, func() {
 		assert(rows.Scan(ptr...))
@@ -60,6 +79,10 @@ func query(args url.Values) (res interface{}) {
 			}
 		}
 		recs = append(recs, rec)
+		if rc.QUERY_MAXROWS > 0 && len(recs) > rc.QUERY_MAXROWS {
+			panic(fmt.Errorf("at most %d rows can be fetched (try use LIMIT)",
+				rc.QUERY_MAXROWS))
+		}
 	})
 	return recs
 }
