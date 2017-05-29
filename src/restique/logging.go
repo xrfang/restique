@@ -36,6 +36,11 @@ func (lm logMessage) String() string {
 	fmt.Fprintf(&buf, "COOKIE:\n")
 	for _, c := range lm.Cookie {
 		fmt.Fprintf(&buf, "\t%v\n", c)
+		if c.Name == "session" {
+			session := sessions.s[c.Value]
+			fmt.Fprintf(&buf, "\t\tsoft_expire=%v\n", session.ex)
+			fmt.Fprintf(&buf, "\t\thard_expire=%v\n", session.lt)
+		}
 	}
 	fmt.Fprintf(&buf, "STATUS:\t%d\n", lm.Code)
 	fmt.Fprintf(&buf, "REPLY:\n")
