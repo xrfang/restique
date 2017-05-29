@@ -82,9 +82,15 @@ client's IP address must match.
 It is strongly recommended that the DSN configured with RESTIQUE is a read-only
 connection to mitigate threats of improper usage, bugs or intrusion.
 
+### Operation Logging
+
+All operations are logged for the sake of auditing and problem solving. **WARNING**:
+user name and password appears in the log in plain text form.  Also note that only
+the first 5 lines of RESTIQUE replies are logged.
+
 ## Performance
 
-RESTIQUE provides two limiting parameters: QUERY_TIMEOUT and QUERY_MAXROWS for
+RESTIQUE provides two limiting parameters: QUERY\_TIMEOUT and QUERY\_MAXROWS for
 the `/query` API.  They are both 0 (disabled) by default.  To ensure data
 integrity, `/exec` will not be limited by these parameters.
 
@@ -106,12 +112,10 @@ The building environment relies on Linux, as well as the password prompting
 method, which used `stty` to suppress echo-ing. Other *NIX based systems may
 also be supported, but I have no experience.
 
-## TODOs
+## TODO
 
-1. Operation Log. All operations via RESTIQUE should be logged with timestamp,
-operator and the SQL statement executed.
-1. Dedicated Client.  I plan to implement a command line client similar to the
-official mysql client, but operate through RESTIQUE proxy.
+I plan to implement a command line client similar to the official mysql client,
+but operate through RESTIQUE proxy.
 
 ## Credits
 

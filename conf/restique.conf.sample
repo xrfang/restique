@@ -30,6 +30,10 @@ DSN_PATH=
 ## LOGS are stored in LOG_PATH/<date>.log. If not specified, LOG_PATH=./logs
 LOG_PATH=
 
+## Log files older than LOG_ROTATE days will be automatically removed. By
+## default, LOG_ROTATE is 0 which means this feature is disabled.
+LOG_ROTATE=0
+
 ## OTP specific settings
 #OTP_DIGITS=6
 #OTP_ISSUER=restique
