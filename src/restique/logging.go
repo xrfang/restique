@@ -38,6 +38,7 @@ func (lm logMessage) String() string {
 		fmt.Fprintf(&buf, "\t%v\n", c)
 		if c.Name == "session" {
 			session := sessions.s[c.Value]
+			fmt.Fprintf(&buf, "\t\tremote_addr=%v\n", session.ip)
 			fmt.Fprintf(&buf, "\t\tsoft_expire=%v\n", session.ex)
 			fmt.Fprintf(&buf, "\t\thard_expire=%v\n", session.lt)
 		}
