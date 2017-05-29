@@ -85,8 +85,10 @@ func (ss sessionStore) NewSession(r *http.Request) string {
 
 func (ss sessionStore) SessionOK(r *http.Request) bool {
 	switch r.URL.Path {
-	case "/", "/login", "/version":
+	case "/login":
 		return true
+	case "/", "/version":
+		return rc.OPEN_HATEOAS
 	}
 	c, err := r.Cookie("session")
 	if err != nil {

@@ -22,6 +22,7 @@ type restiqueConf struct {
 	QUERY_MAXROWS int
 	LOG_PATH      string
 	LOG_ROTATE    int
+	OPEN_HATEOAS  bool
 }
 
 func parseConfig(fn string) (rc restiqueConf) {

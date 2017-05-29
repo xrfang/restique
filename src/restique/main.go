@@ -43,6 +43,7 @@ func main() {
 	ver := flag.Bool("version", false, "show version info")
 	log_path := flag.String("log-path", "", "directory to save log files")
 	log_rotate := flag.Int("log-rotate", 0, "days to keep log files (0=keep forever)")
+	hateoas := flag.Bool("hateoas", false, "show API info without authentication")
 	flag.Parse()
 
 	if *ver {
@@ -156,6 +157,9 @@ func main() {
 	rc.CLIENT_CIDRS = strings.TrimSpace(rc.CLIENT_CIDRS)
 	if len(rc.CLIENT_CIDRS) > 0 {
 		allowed_cidrs = strings.Split(rc.CLIENT_CIDRS, ",")
+	}
+	if *hateoas {
+		rc.OPEN_HATEOAS = true
 	}
 
 	mux := http.NewServeMux()
