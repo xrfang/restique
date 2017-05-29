@@ -92,12 +92,24 @@ func help(args url.Values) interface{} {
 	switch {
 	case strings.HasPrefix(path, "/query/"):
 		args := strings.SplitN(path[7:], "/", 2)
+		if len(args) != 2 {
+			return httpError{
+				Code: http.StatusBadRequest,
+				Mesg: "missing [use] or [sql]",
+			}
+		}
 		return query(map[string][]string{
 			"use": []string{args[0]},
 			"sql": []string{args[1]},
 		})
 	case strings.HasPrefix(path, "/exec/"):
 		args := strings.SplitN(path[6:], "/", 2)
+		if len(args) != 2 {
+			return httpError{
+				Code: http.StatusBadRequest,
+				Mesg: "missing [use] or [sql]",
+			}
+		}
 		return exec(map[string][]string{
 			"use": []string{args[0]},
 			"sql": []string{args[1]},
