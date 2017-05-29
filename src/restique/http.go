@@ -88,7 +88,9 @@ func (ss sessionStore) SessionOK(r *http.Request) bool {
 	case "/login":
 		return true
 	case "/", "/version":
-		return rc.OPEN_HATEOAS
+		if rc.OPEN_HATEOAS {
+			return true
+		}
 	}
 	c, err := r.Cookie("session")
 	if err != nil {
