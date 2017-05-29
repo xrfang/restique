@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -69,4 +70,25 @@ func init() {
 			lm.Save()
 		}
 	}()
+	if rc.LOG_ROTATE > 0 {
+		go func() {
+			keep := time.Duration(rc.LOG_ROTATE*24) * time.Hour
+			for {
+				<-time.After(24 * time.Hour)
+				lfs, err := filepath.Glob(path.Join(rc.LOG_PATH, "*.log"))
+				if err != nil {
+					continue
+				}
+				for _, lf := range lfs {
+					fi, err := os.Stat(lf)
+					if err != nil {
+						continue
+					}
+					if time.Since(fi.ModTime()) > keep {
+						os.Remove(lf)
+					}
+				}
+			}
+		}()
+	}
 }
