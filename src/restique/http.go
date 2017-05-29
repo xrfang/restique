@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -110,21 +112,41 @@ func (ss sessionStore) SessionOK(r *http.Request) bool {
 
 func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var args url.Values
+		var out bytes.Buffer
+		requestTime := time.Now()
 		defer func() {
+			code := http.StatusOK
+			data := out.String()
 			if e := recover(); e != nil {
-				//TODO: logging?
-				http.Error(w, e.(error).Error(), http.StatusInternalServerError)
+				switch e.(type) {
+				case httpError:
+					code = e.(httpError).Code
+					data = e.(httpError).Mesg
+				default:
+					code = http.StatusInternalServerError
+					data = e.(error).Error()
+				}
+				http.Error(w, data, code)
+			}
+			delete(args, "REQUEST_URL_PATH")
+			lms <- logMessage{
+				Client:   r.RemoteAddr,
+				Time:     requestTime,
+				Duration: time.Since(requestTime).Seconds(),
+				Request:  r.URL.Path,
+				Params:   args,
+				Cookie:   r.Cookies(),
+				Code:     code,
+				Reply:    data,
 			}
 		}()
 		if AccessDenied(r) {
-			http.Error(w, "access denied", http.StatusForbidden)
-			return
+			panic(httpError{Code: http.StatusForbidden, Mesg: "access denied"})
 		}
 		if !sessions.SessionOK(r) {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
-			return
+			panic(httpError{Code: http.StatusUnauthorized, Mesg: "unauthorized"})
 		}
-		var args url.Values
 		if r.Method == "POST" || r.Method == "PUT" {
 			r.ParseForm()
 			args = r.Form
@@ -134,8 +156,7 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 		args["REQUEST_URL_PATH"] = []string{r.URL.Path}
 		data := proc(args)
 		if e, ok := data.(httpError); ok {
-			http.Error(w, e.Error(), e.Code)
-			return
+			panic(e)
 		}
 		if r.URL.Path == "/login" {
 			sid := sessions.NewSession(r)
@@ -147,7 +168,8 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 			})
 			data = map[string]string{"session": sid}
 		}
-		enc := json.NewEncoder(w)
+		mw := io.MultiWriter(&out, w)
+		enc := json.NewEncoder(mw)
 		enc.SetIndent("", "    ")
 		assert(enc.Encode(data))
 	}

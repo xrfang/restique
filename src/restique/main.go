@@ -41,6 +41,8 @@ func main() {
 	otp_timeout := flag.Uint("otp-timeout", 0, "OTP code lifetime (30~60 recommended)")
 	client_cidrs := flag.String("client-cidrs", "", "Access control via IP range")
 	ver := flag.Bool("version", false, "show version info")
+	log_path := flag.String("log-path", "", "directory to save log files")
+	log_rotate := flag.Int("log-rotate", 0, "days to keep log files (0=keep forever)")
 	flag.Parse()
 
 	if *ver {
@@ -84,6 +86,11 @@ func main() {
 	}
 	assert(os.MkdirAll(path.Dir(rc.AUTH_PATH), 0755))
 
+	if *log_path != "" {
+		rc.LOG_PATH = *log_path
+	}
+	assert(os.MkdirAll(rc.LOG_PATH, 0755))
+
 	if *user != "" {
 		pswd := *pass
 		if *pass == "" {
@@ -106,6 +113,9 @@ func main() {
 	}
 	if *tls_pkey != "" {
 		rc.TLS_PKEY = *tls_pkey
+	}
+	if *log_rotate > 0 {
+		rc.LOG_ROTATE = *log_rotate
 	}
 	if *idle_timeout > 0 {
 		rc.IDLE_TIMEOUT = *idle_timeout

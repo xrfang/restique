@@ -21,6 +21,7 @@ type restiqueConf struct {
 	QUERY_TIMEOUT int
 	QUERY_MAXROWS int
 	LOG_PATH      string
+	LOG_ROTATE    int
 }
 
 func parseConfig(fn string) (rc restiqueConf) {
@@ -42,7 +43,7 @@ func parseConfig(fn string) (rc restiqueConf) {
 		rc.DSN_PATH = "./restique_dsns.json"
 	}
 	if rc.LOG_PATH == "" {
-		rc.LOG_PATH == "./logs"
+		rc.LOG_PATH = "./logs"
 	}
 	return
 }
