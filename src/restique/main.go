@@ -99,6 +99,12 @@ func main() {
 			prompt := fmt.Sprintf("Enter password for %s: ", *user)
 			pswd, err = gopass.GetPass(prompt)
 			assert(err)
+			pswd2, err := gopass.GetPass("Enter password again: ")
+			assert(err)
+			if pswd != pswd2 {
+				fmt.Println("ERROR: password mismatch, aborted.")
+				return
+			}
 		}
 		SetAuth(*user, pswd)
 		return
