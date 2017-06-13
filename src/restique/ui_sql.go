@@ -40,7 +40,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !sessions.SessionOK(r) {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Redirect(w, r, "/uilgn", http.StatusSeeOther)
 		return
 	}
 	requestTime := time.Now()
