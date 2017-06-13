@@ -10,7 +10,7 @@ const LGN_CONTENT = `
 <div class="form" style="top:20%%">
   <form method=POST action="/loginui">
     <input type="text" name="name" placeholder="username"/>
-	<input type="text" name="code" placeholder="OTP code"/>
+	<input type="password" name="code" placeholder="OTP code"/>
     <input type="password" name="pass" placeholder="password"/>
     <button>login</button>
   </form>
