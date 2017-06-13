@@ -112,11 +112,6 @@ The building environment relies on Linux, as well as the password prompting
 method, which used `stty` to suppress echo-ing. Other *NIX based systems may
 also be supported, but I have no experience.
 
-## TODO
-
-I plan to implement a command line client similar to the official mysql client,
-but operate through RESTIQUE proxy.
-
 ## Credits
 
 * MySQL Driver: https://github.com/go-sql-driver/mysql
