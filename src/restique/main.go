@@ -166,6 +166,7 @@ func main() {
 	mux.HandleFunc("/", handler(help))
 	mux.HandleFunc("/version", handler(version))
 	mux.HandleFunc("/login", handler(login))
+	mux.HandleFunc("/loginui", handler(login))
 	mux.HandleFunc("/query", handler(query))
 	mux.HandleFunc("/exec", handler(exec))
 	mux.HandleFunc("/conns", handler(conns))

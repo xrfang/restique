@@ -85,7 +85,7 @@ func (ss sessionStore) NewSession(r *http.Request) string {
 
 func (ss sessionStore) SessionOK(r *http.Request) bool {
 	switch r.URL.Path {
-	case "/login":
+	case "/login", "/loginui":
 		return true
 	case "/", "/version":
 		if rc.OPEN_HATEOAS {
@@ -166,7 +166,7 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 		if e, ok := data.(httpError); ok {
 			panic(e)
 		}
-		if r.URL.Path == "/login" {
+		if strings.HasPrefix(r.URL.Path, "/login") {
 			sid := sessions.NewSession(r)
 			http.SetCookie(w, &http.Cookie{
 				Name:    "session",
@@ -174,6 +174,9 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 				Path:    "/",
 				Expires: time.Now().Add(24 * time.Hour),
 			})
+			if r.URL.Path == "/loginui" {
+				panic(httpError{Code: http.StatusSeeOther, Mesg: "/query"})
+			}
 			data = map[string]string{"session": sid}
 		}
 		mw := io.MultiWriter(&out, w)
