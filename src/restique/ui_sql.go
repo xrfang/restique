@@ -115,7 +115,9 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 	body := strings.Replace(QRY_CONTENT, "{{USE}}", use, 1)
 	body = strings.Replace(body, "{{MODQRY}}", modqry, 1)
 	body = strings.Replace(body, "{{MODEXE}}", modexe, 1)
-	html := strings.Replace(PAGE, "{{CONTENT}}", body, 1)
+	page := strings.Replace(PAGE, "{{VERSION}}", fmt.Sprintf("V%s.%s",
+		_G_REVS, _G_HASH), 1)
+	page = strings.Replace(page, "{{CONTENT}}", body, 1)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, html)
+	fmt.Fprintf(w, page)
 }

@@ -18,7 +18,9 @@ const LGN_CONTENT = `
 `
 
 func uiLgn(w http.ResponseWriter, r *http.Request) {
-	html := strings.Replace(PAGE, "{{CONTENT}}", LGN_CONTENT, 1)
+	page := strings.Replace(PAGE, "{{VERSION}}", fmt.Sprintf("V%s.%s",
+		_G_REVS, _G_HASH), 1)
+	html := strings.Replace(page, "{{CONTENT}}", LGN_CONTENT, 1)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprintf(w, html)
 }

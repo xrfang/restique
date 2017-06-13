@@ -3,7 +3,7 @@ package main
 const PAGE = `
 <html>
 <head>
-<title>restique - RESTful MySQL Query Proxy</title>
+<title>RESTIQUE {{VERSION}}</title>
 <style>
 .form {
   position: relative;
