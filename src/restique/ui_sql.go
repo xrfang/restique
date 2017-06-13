@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const CONTENT = `
+const QRY_CONTENT = `
 <form method="POST" action="/uisql">
 <textarea style="display:block;width:100%%" name="sql" id="sql" rows=5 onkeyup="resize('sql')"></textarea>
 <div style="position:absolute;width:100%%">
@@ -112,7 +112,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 	if act == "exec" {
 		modqry, modexe = modexe, modqry
 	}
-	body := strings.Replace(CONTENT, "{{USE}}", use, 1)
+	body := strings.Replace(QRY_CONTENT, "{{USE}}", use, 1)
 	body = strings.Replace(body, "{{MODQRY}}", modqry, 1)
 	body = strings.Replace(body, "{{MODEXE}}", modexe, 1)
 	html := strings.Replace(PAGE, "{{CONTENT}}", body, 1)

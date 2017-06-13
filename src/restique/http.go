@@ -85,7 +85,7 @@ func (ss sessionStore) NewSession(r *http.Request) string {
 
 func (ss sessionStore) SessionOK(r *http.Request) bool {
 	switch r.URL.Path {
-	case "/login", "/loginui":
+	case "/", "/uilgn", "/login", "/loginui":
 		return true
 	case "/api", "/version":
 		if rc.OPEN_HATEOAS {
@@ -153,7 +153,7 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 			panic(httpError{Code: http.StatusForbidden, Mesg: "access denied"})
 		}
 		if !sessions.SessionOK(r) {
-			panic(httpError{Code: http.StatusUnauthorized, Mesg: "unauthorized"})
+			panic(httpError{Code: http.StatusSeeOther, Mesg: "/uilgn"})
 		}
 		if r.Method == "POST" || r.Method == "PUT" {
 			r.ParseForm()

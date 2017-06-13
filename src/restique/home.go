@@ -9,7 +9,7 @@ import (
 func home(args url.Values) interface{} {
 	path := val(args, "REQUEST_URL_PATH")
 	if path == "/" {
-		return eps
+		panic(httpError{Code: http.StatusSeeOther, Mesg: "/uilgn"})
 	}
 	switch {
 	case strings.HasPrefix(path, "/query/"):
