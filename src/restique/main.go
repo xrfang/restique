@@ -163,7 +163,8 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handler(help))
+	mux.HandleFunc("/", handler(home))
+	mux.HandleFunc("/api", handler(help))
 	mux.HandleFunc("/version", handler(version))
 	mux.HandleFunc("/login", handler(login))
 	mux.HandleFunc("/loginui", handler(login))

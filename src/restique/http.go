@@ -87,7 +87,7 @@ func (ss sessionStore) SessionOK(r *http.Request) bool {
 	switch r.URL.Path {
 	case "/login", "/loginui":
 		return true
-	case "/", "/version":
+	case "/api", "/version":
 		if rc.OPEN_HATEOAS {
 			return true
 		}

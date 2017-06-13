@@ -49,8 +49,8 @@ authentication utilities, such as [FreeOTP](https://freeotp.github.io/).
 ## APIs
 
 RESTIQUE API design follows the [HATEOAS](https://en.wikipedia.org/wiki/HATEOAS)
-principle. Simply visit `http://localhost:32779/` to read about the APIs, which
-should be self-explanatory.
+principle. Simply visit `http://localhost:32779/api` to read about the APIs,
+which should be self-explanatory.
 
 ## Security Considerations
 
