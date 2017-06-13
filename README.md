@@ -34,6 +34,7 @@ Specifically, you should:
 for password of the new user, as well as show a QR-code image for use by 2-Factor
 authentication utilities, such as [FreeOTP](https://freeotp.github.io/).
 1. Launch RESTIQUE: `bin/restique`
+1. Open `http://localhost:32779/` in your browser.
 
 ### Further tweaks
 

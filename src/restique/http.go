@@ -83,15 +83,7 @@ func (ss sessionStore) NewSession(r *http.Request) string {
 	return sid
 }
 
-func (ss sessionStore) SessionOK(r *http.Request) bool {
-	switch r.URL.Path {
-	case "/", "/uilgn", "/login", "/loginui":
-		return true
-	case "/api", "/version":
-		if rc.OPEN_HATEOAS {
-			return true
-		}
-	}
+func (ss sessionStore) Validate(r *http.Request) bool {
 	c, err := r.Cookie("session")
 	if err != nil {
 		return false
@@ -112,6 +104,18 @@ func (ss sessionStore) SessionOK(r *http.Request) bool {
 	}
 	ss.s[c.Value] = s
 	return true
+}
+
+func (ss sessionStore) SessionOK(r *http.Request) bool {
+	switch r.URL.Path {
+	case "/", "/uilgn", "/login", "/loginui":
+		return true
+	case "/api", "/version":
+		if rc.OPEN_HATEOAS {
+			return true
+		}
+	}
+	return ss.Validate(r)
 }
 
 func handler(proc func(url.Values) interface{}) http.HandlerFunc {

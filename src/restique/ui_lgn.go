@@ -18,6 +18,10 @@ const LGN_CONTENT = `
 `
 
 func uiLgn(w http.ResponseWriter, r *http.Request) {
+	if sessions.Validate(r) {
+		http.Redirect(w, r, "/uisql", http.StatusSeeOther)
+		return
+	}
 	page := strings.Replace(PAGE, "{{VERSION}}", fmt.Sprintf("V%s.%s",
 		_G_REVS, _G_HASH), 1)
 	html := strings.Replace(page, "{{CONTENT}}", LGN_CONTENT, 1)
