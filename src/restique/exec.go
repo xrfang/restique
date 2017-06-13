@@ -16,8 +16,8 @@ func exec(args url.Values) (res interface{}) {
 	qry := val(args, "sql")
 	if use == "" || qry == "" {
 		return httpError{
-			Code: http.StatusBadRequest,
-			Mesg: "[use] or [sql] not provided",
+			Code: http.StatusSeeOther,
+			Mesg: "/uisql?action=exec&use=" + use,
 		}
 	}
 	ds, ok := dsns[use]

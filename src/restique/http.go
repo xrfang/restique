@@ -131,7 +131,11 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 					code = http.StatusInternalServerError
 					data = e.(error).Error()
 				}
-				http.Error(w, data, code)
+				if code == http.StatusSeeOther {
+					http.Redirect(w, r, data, code)
+				} else {
+					http.Error(w, data, code)
+				}
 			}
 			delete(args, "REQUEST_URL_PATH")
 			lms <- logMessage{

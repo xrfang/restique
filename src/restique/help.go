@@ -91,29 +91,25 @@ func help(args url.Values) interface{} {
 	}
 	switch {
 	case strings.HasPrefix(path, "/query/"):
-		args := strings.SplitN(path[7:], "/", 2)
-		if len(args) != 2 {
-			return httpError{
-				Code: http.StatusBadRequest,
-				Mesg: "missing [use] or [sql]",
-			}
+		ua := strings.SplitN(path[7:], "/", 2)
+		switch len(ua) {
+		case 1:
+			args["use"] = []string{ua[0]}
+		case 2:
+			args["use"] = []string{ua[0]}
+			args["sql"] = []string{ua[1]}
 		}
-		return query(map[string][]string{
-			"use": []string{args[0]},
-			"sql": []string{args[1]},
-		})
+		return query(args)
 	case strings.HasPrefix(path, "/exec/"):
-		args := strings.SplitN(path[6:], "/", 2)
-		if len(args) != 2 {
-			return httpError{
-				Code: http.StatusBadRequest,
-				Mesg: "missing [use] or [sql]",
-			}
+		ua := strings.SplitN(path[6:], "/", 2)
+		switch len(ua) {
+		case 1:
+			args["use"] = []string{ua[0]}
+		case 2:
+			args["use"] = []string{ua[0]}
+			args["sql"] = []string{ua[1]}
 		}
-		return exec(map[string][]string{
-			"use": []string{args[0]},
-			"sql": []string{args[1]},
-		})
+		return exec(args)
 	}
 	return httpError{
 		Code: http.StatusNotFound,

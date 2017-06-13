@@ -169,6 +169,7 @@ func main() {
 	mux.HandleFunc("/query", handler(query))
 	mux.HandleFunc("/exec", handler(exec))
 	mux.HandleFunc("/conns", handler(conns))
+	mux.HandleFunc("/uisql", uiSql)
 
 	svr := http.Server{
 		Addr:         ":" + rc.SERVICE_PORT,
