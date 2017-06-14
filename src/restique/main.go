@@ -92,6 +92,7 @@ func main() {
 	}
 	assert(os.MkdirAll(rc.LOG_PATH, 0755))
 
+	LoadAuthDb()
 	if *user != "" {
 		pswd := *pass
 		if *pass == "" {
@@ -109,7 +110,6 @@ func main() {
 		SetAuth(*user, pswd)
 		return
 	}
-	LoadAuthDb()
 	LoadDSNs()
 
 	if *service_port != "" {
