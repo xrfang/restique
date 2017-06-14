@@ -7,8 +7,10 @@ import (
 	"gopass"
 	"net/http"
 	"os"
+	"os/signal"
 	"path"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -179,6 +181,18 @@ func main() {
 	mux.HandleFunc("/conns", handler(conns))
 	mux.HandleFunc("/uilgn", uiLgn)
 	mux.HandleFunc("/uisql", uiSql)
+
+	sigch := make(chan os.Signal, 1)
+	signal.Notify(sigch, syscall.SIGHUP)
+	go func() {
+		for {
+			switch <-sigch {
+			case syscall.SIGHUP:
+				LoadAuthDb()
+				LoadDSNs()
+			}
+		}
+	}()
 
 	svr := http.Server{
 		Addr:         ":" + rc.SERVICE_PORT,

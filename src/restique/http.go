@@ -6,10 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -157,22 +155,6 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 		}()
 		if AccessDenied(r) {
 			panic(httpError{Code: http.StatusForbidden, Mesg: "access denied"})
-		}
-		if r.URL.Path == "/reload" {
-			rx := regexp.MustCompile(`\[?([^\]]+)\]?:\d+`)
-			ra := rx.FindStringSubmatch(r.RemoteAddr)
-			addr := ""
-			if len(ra) > 1 {
-				addr = ra[1]
-			}
-			ip := net.ParseIP(addr)
-			if !ip.IsLoopback() {
-				panic(httpError{Code: http.StatusForbidden, Mesg: "access denied"})
-			}
-			LoadAuthDb()
-			LoadDSNs()
-			fmt.Fprintf(w, "RESTIQUE reloaded\n")
-			return
 		}
 		if !sessions.SessionOK(r) {
 			panic(httpError{Code: http.StatusSeeOther, Mesg: "/uilgn"})
