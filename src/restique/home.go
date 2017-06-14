@@ -7,7 +7,7 @@ import (
 )
 
 func home(args url.Values) interface{} {
-	path := val(args, "REQUEST_URL_PATH")
+	path := args.Get("REQUEST_URL_PATH")
 	if path == "/" {
 		panic(httpError{Code: http.StatusSeeOther, Mesg: "/uilgn"})
 	}

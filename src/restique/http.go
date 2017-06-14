@@ -22,14 +22,6 @@ func (he httpError) Error() string {
 	return fmt.Sprintf("HTTP/%d: %s", he.Code, he.Mesg)
 }
 
-func val(args url.Values, key string) string {
-	a := args[key]
-	if len(a) == 0 {
-		return ""
-	}
-	return a[0]
-}
-
 type session struct {
 	id string
 	ip string

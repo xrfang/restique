@@ -9,8 +9,8 @@ import (
 )
 
 func query(args url.Values) (res interface{}) {
-	use := val(args, "use")
-	qry := val(args, "sql")
+	use := args.Get("use")
+	qry := args.Get("sql")
 	if use == "" || qry == "" {
 		return httpError{
 			Code: http.StatusSeeOther,

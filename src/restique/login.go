@@ -6,9 +6,9 @@ import (
 )
 
 func login(args url.Values) interface{} {
-	name := val(args, "name")
-	pass := val(args, "pass")
-	code := val(args, "code")
+	name := args.Get("name")
+	pass := args.Get("pass")
+	code := args.Get("code")
 	if name == "" {
 		return httpError{
 			Code: http.StatusBadRequest,
