@@ -50,6 +50,12 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		args = r.Form
 	}
 	db := args.Get("use")
+	if db == "" {
+		c, err := r.Cookie("use")
+		if err == nil {
+			db = c.Value
+		}
+	}
 	act := args.Get("action")
 	sql := args.Get("sql")
 	if args.Get("SUBMIT") != "" {
@@ -74,6 +80,12 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			data = res.(httpError).Mesg
 			http.Error(w, data, code)
 		default:
+			http.SetCookie(w, &http.Cookie{
+				Name:    "use",
+				Value:   db,
+				Path:    "/",
+				Expires: time.Now().Add(365 * 24 * time.Hour),
+			})
 			mw := io.MultiWriter(&out, w)
 			enc := json.NewEncoder(mw)
 			enc.SetIndent("", "    ")
