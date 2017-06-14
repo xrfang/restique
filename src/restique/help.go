@@ -77,6 +77,11 @@ var eps []endPoint = []endPoint{
 		},
 	},
 	endPoint{
+		EndPoint: "/reload",
+		Purpose:  "reload the auth and dsn database",
+		Note:     "this API must be called from the localhost",
+	},
+	endPoint{
 		EndPoint: "/version",
 		Purpose:  "show version info",
 	},
