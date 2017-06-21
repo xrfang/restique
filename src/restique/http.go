@@ -133,6 +133,10 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 					http.Error(w, data, code)
 				}
 			}
+			if strings.Contains(args.Get("REQUEST_URL_PATH"), "login") {
+				delete(args, "code")
+				delete(args, "pass")
+			}
 			delete(args, "REQUEST_URL_PATH")
 			lms <- logMessage{
 				Client:   r.RemoteAddr,
