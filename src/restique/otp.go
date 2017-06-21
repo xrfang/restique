@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/mdp/qrterminal"
-	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -32,15 +30,7 @@ func init() {
 	authDb = make(map[string]authInfo)
 }
 
-func SetAuth(user, pass string) {
-	gopts := totp.GenerateOpts{
-		AccountName: user,
-		Digits:      otp.Digits(rc.OTP_DIGITS),
-		Issuer:      rc.OTP_ISSUER,
-		Period:      rc.OTP_TIMEOUT,
-	}
-	key, err := totp.Generate(gopts)
-	assert(err)
+func SetAuth(user, pass, secret string) {
 	ai := authDb[user]
 	ai.Name = user
 	ai.Pass = ""
@@ -49,7 +39,7 @@ func SetAuth(user, pass string) {
 		assert(err)
 		ai.Pass = string(hash)
 	}
-	ai.Secret = key.Secret()
+	ai.Secret = secret
 	authDb[user] = ai
 	f, err := os.Create(rc.AUTH_PATH)
 	assert(err)
@@ -57,7 +47,6 @@ func SetAuth(user, pass string) {
 	enc := json.NewEncoder(f)
 	enc.SetIndent("", "    ")
 	assert(enc.Encode(authDb))
-	qrterminal.Generate(key.String(), qrterminal.L, os.Stdout)
 	return
 }
 

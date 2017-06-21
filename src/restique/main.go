@@ -1,17 +1,20 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"gopass"
 	"net/http"
 	"os"
-	"os/signal"
 	"path"
 	"strings"
-	"syscall"
 	"time"
+
+	"github.com/mdp/qrterminal"
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 )
 
 func main() {
@@ -107,7 +110,30 @@ func main() {
 				return
 			}
 		}
-		SetAuth(*user, pswd)
+		want_otp := true
+		otpkey := ""
+		if pswd != "" {
+			r := bufio.NewReader(os.Stdin)
+			fmt.Print("Enable two-factor authentication (OTP)? [Y/n] ")
+			yn, _ := r.ReadString('\n')
+			if len(yn) > 0 && (yn[0] == 'N' || yn[0] == 'n') {
+				want_otp = false
+			}
+		}
+		if want_otp {
+			gopts := totp.GenerateOpts{
+				AccountName: *user,
+				Digits:      otp.Digits(rc.OTP_DIGITS),
+				Issuer:      rc.OTP_ISSUER,
+				Period:      rc.OTP_TIMEOUT,
+			}
+			key, err := totp.Generate(gopts)
+			assert(err)
+			qrterminal.Generate(key.String(), qrterminal.L, os.Stdout)
+			otpkey = key.Secret()
+		}
+		SetAuth(*user, pswd, otpkey)
+		reloadConfig()
 		return
 	}
 	LoadDSNs()
@@ -168,8 +194,11 @@ func main() {
 		rc.OPEN_HATEOAS = true
 	}
 
+	handleSignals()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handler(home))
+	mux.HandleFunc("/pid", getpid)
 	mux.HandleFunc("/api", handler(help))
 	mux.HandleFunc("/version", handler(version))
 	mux.HandleFunc("/login", handler(login))
@@ -179,19 +208,6 @@ func main() {
 	mux.HandleFunc("/conns", handler(conns))
 	mux.HandleFunc("/uilgn", uiLgn)
 	mux.HandleFunc("/uisql", uiSql)
-
-	sigch := make(chan os.Signal, 1)
-	signal.Notify(sigch, syscall.SIGHUP)
-	go func() {
-		for {
-			switch <-sigch {
-			case syscall.SIGHUP:
-				LoadAuthDb()
-				LoadDSNs()
-			}
-		}
-	}()
-
 	svr := http.Server{
 		Addr:         ":" + rc.SERVICE_PORT,
 		Handler:      mux,
