@@ -171,7 +171,10 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 				Expires: time.Now().Add(24 * time.Hour),
 			})
 			if r.URL.Path == "/loginui" {
-				panic(httpError{Code: http.StatusSeeOther, Mesg: "/query"})
+				panic(httpError{
+					Code: http.StatusSeeOther,
+					Mesg: "/query?" + sid,
+				})
 			}
 			data = map[string]string{"session": sid}
 		}
