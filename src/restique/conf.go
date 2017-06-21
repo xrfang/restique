@@ -25,7 +25,9 @@ type restiqueConf struct {
 	OPEN_HATEOAS  bool
 }
 
-func parseConfig(fn string) (rc restiqueConf) {
+var rc restiqueConf
+
+func parseConfig(fn string) {
 	rc.READ_TIMEOUT = 60
 	rc.WRITE_TIMEOUT = 60
 	rc.SERVICE_PORT = "32779"

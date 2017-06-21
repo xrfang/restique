@@ -14,8 +14,6 @@ import (
 	"time"
 )
 
-var rc restiqueConf
-
 func main() {
 	defer func() {
 		if e := recover(); e != nil {
@@ -55,7 +53,7 @@ func main() {
 		return
 	}
 
-	rc = parseConfig(*conf)
+	parseConfig(*conf)
 	if *dsn_path != "" {
 		rc.DSN_PATH = *dsn_path
 	}
