@@ -48,5 +48,4 @@ func parseConfig(fn string) {
 	if rc.LOG_PATH == "" {
 		rc.LOG_PATH = "./logs"
 	}
-	return
 }
