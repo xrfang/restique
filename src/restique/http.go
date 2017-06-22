@@ -19,7 +19,7 @@ type httpError struct {
 }
 
 func (he httpError) Error() string {
-	return fmt.Sprintf("HTTP/%d: %s", he.Code, he.Mesg)
+	return he.Mesg
 }
 
 type session struct {
@@ -127,7 +127,7 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 					code = http.StatusInternalServerError
 					data = e.(error).Error()
 				}
-				if code == http.StatusSeeOther {
+				if code >= 300 && code < 400 {
 					http.Redirect(w, r, data, code)
 				} else {
 					http.Error(w, data, code)
@@ -164,6 +164,13 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 		args["REQUEST_URL_PATH"] = []string{r.URL.Path}
 		data := proc(args)
 		if e, ok := data.(httpError); ok {
+			if r.URL.Path == "/loginui" {
+				panic(httpError{
+					Code: http.StatusFound,
+					Mesg: fmt.Sprintf("/uilgn?name=%s&err=%s", args.Get("name"),
+						e.Error()),
+				})
+			}
 			panic(e)
 		}
 		if strings.HasPrefix(r.URL.Path, "/login") {

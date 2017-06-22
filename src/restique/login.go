@@ -12,18 +12,18 @@ func login(args url.Values) interface{} {
 	if name == "" {
 		return httpError{
 			Code: http.StatusBadRequest,
-			Mesg: "[name] not provided",
+			Mesg: "username not provided",
 		}
 	}
 	if pass == "" && code == "" {
 		return httpError{
 			Code: http.StatusBadRequest,
-			Mesg: "at least one of [pass] or [code] must be provided",
+			Mesg: "password or OTP code required",
 		}
 	}
 	fail := httpError{
 		Code: http.StatusUnauthorized,
-		Mesg: "user not found or authentication failed",
+		Mesg: "authentication failed",
 	}
 	ai, ok := authDb[name]
 	if !ok {
