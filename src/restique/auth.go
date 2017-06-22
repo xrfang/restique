@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"os"
+	"time"
 
 	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
@@ -41,6 +42,7 @@ func SetAuth(user, pass, secret string) {
 	}
 	ai.Secret = secret
 	authDb[user] = ai
+	os.Rename(rc.AUTH_PATH, rc.AUTH_PATH+time.Now().Format(".20060102150405"))
 	f, err := os.Create(rc.AUTH_PATH)
 	assert(err)
 	defer f.Close()
