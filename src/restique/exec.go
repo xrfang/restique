@@ -2,13 +2,15 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type sqlExecRes struct {
-	LastInsertId int64 `json:"last_insert_id,omitempty"`
-	RowsAffected int64 `json:"rows_affected"`
+	LastInsertId string `json:"last_insert_id"`
+	RowsAffected string `json:"rows_affected"`
 }
 
 func exec(args url.Values) (res interface{}) {
@@ -42,16 +44,24 @@ func exec(args url.Values) (res interface{}) {
 		assert(err)
 		ds.conn = conn
 	}
+	start := time.Now()
 	qr, err := ds.conn.Exec(qry)
+	elapsed := time.Since(start).Seconds()
 	assert(err)
 	var xr sqlExecRes
 	lid, err := qr.LastInsertId()
 	if err == nil {
-		xr.LastInsertId = lid
+		xr.LastInsertId = fmt.Sprintf("%d", lid)
+	} else {
+		xr.LastInsertId = err.Error()
 	}
 	ra, err := qr.RowsAffected()
 	if err == nil {
-		xr.RowsAffected = ra
+		xr.RowsAffected = fmt.Sprintf("%d", ra)
+	} else {
+		xr.RowsAffected = err.Error()
 	}
+	summary := fmt.Sprintf("Executed statement in %fs", elapsed)
+	args.Set("RESTIQUE_SUMMARY", summary)
 	return xr
 }

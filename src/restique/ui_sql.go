@@ -4,27 +4,35 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
 
-const QRY_CONTENT = `
+const (
+	QRY_RESULT = `
+<div style="position:relative;margin-top:60px;border:dotted lightgray">
+<div style="background:lightyellow;padding:6px">{{SUMMARY}}</div>
+<pre style="padding:6px;overflow:scroll">{{DATA}}</pre>
+</div>
+`
+	QRY_CONTENT = `
 <form method="POST" action="/uisql">
-<textarea style="display:block;width:100%%" name="sql" id="sql" rows=5 onkeyup="resize('sql')"></textarea>
+<textarea style="display:block;width:100%%" name="sql" id="sql" rows=5 onkeyup="resize('sql')">{{SQL}}</textarea>
 <div style="position:absolute;width:100%%">
 <span style="float:left">
 {{USE}}<input style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px;margin:10px" type="submit" name="SUBMIT"/>
 </span>
 <span style="float:right;margin-top:10px;margin-right:16px">mode:
-<select name="action" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px">
+<select name="act" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px">
 <option {{MODQRY}}>QUERY</option>
 <option {{MODEXE}}>EXEC</option>
 </select>
 </span>
 </div>
 </form>
+{{RESULT}}
 <script>
 function resize(id) {
   var a = document.getElementById(id);
@@ -33,6 +41,7 @@ function resize(id) {
 }
 </script>
 `
+)
 
 func uiSql(w http.ResponseWriter, r *http.Request) {
 	if AccessDenied(r) {
@@ -56,14 +65,15 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			db = c.Value
 		}
 	}
-	act := args.Get("action")
+	act := args.Get("act")
 	sql := args.Get("sql")
+	var qry_res string
 	if args.Get("SUBMIT") != "" {
 		var (
 			res interface{}
 			out bytes.Buffer
 		)
-		arg := map[string][]string{
+		arg := url.Values{
 			"use": []string{db},
 			"sql": []string{sql},
 		}
@@ -74,26 +84,23 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		}
 		code := http.StatusOK
 		data := ""
+		summary := ""
 		switch res.(type) {
 		case httpError:
-			code = res.(httpError).Code
-			data = res.(httpError).Mesg
-			http.Error(w, data, code)
+			summary = res.(httpError).Mesg
 		default:
+			summary = arg.Get("RESTIQUE_SUMMARY")
 			http.SetCookie(w, &http.Cookie{
 				Name:    "use",
 				Value:   db,
 				Path:    "/",
 				Expires: time.Now().Add(365 * 24 * time.Hour),
 			})
-			mw := io.MultiWriter(&out, w)
-			enc := json.NewEncoder(mw)
+			enc := json.NewEncoder(&out)
 			enc.SetIndent("", "    ")
 			err := enc.Encode(res)
 			if err != nil {
-				code = http.StatusInternalServerError
-				data = err.Error()
-				http.Error(w, data, code)
+				summary = err.Error()
 			} else {
 				data = out.String()
 			}
@@ -109,7 +116,8 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			Code:     code,
 			Reply:    data,
 		}
-		return
+		qry_res = strings.Replace(QRY_RESULT, "{{SUMMARY}}", summary, 1)
+		qry_res = strings.Replace(qry_res, "{{DATA}}", data, 1)
 	}
 	use := `<select name="use" style="padding:6px">`
 	for ds := range dsns {
@@ -121,15 +129,17 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 	}
 	modqry := "selected"
 	modexe := ""
-	if act == "exec" {
+	if act == "EXEC" {
 		modqry, modexe = modexe, modqry
 	}
 	body := strings.Replace(QRY_CONTENT, "{{USE}}", use, 1)
+	body = strings.Replace(body, "{{SQL}}", sql, 1)
 	body = strings.Replace(body, "{{MODQRY}}", modqry, 1)
 	body = strings.Replace(body, "{{MODEXE}}", modexe, 1)
 	page := strings.Replace(PAGE, "{{VERSION}}", fmt.Sprintf("V%s.%s",
 		_G_REVS, _G_HASH), 1)
 	page = strings.Replace(page, "{{CONTENT}}", body, 1)
+	page = strings.Replace(page, "{{RESULT}}", qry_res, 1)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprintf(w, page)
 }

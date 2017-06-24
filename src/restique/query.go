@@ -43,11 +43,14 @@ func query(args url.Values) (res interface{}) {
 		rows        *sql.Rows
 		timeoutChan <-chan time.Time
 		resultChan  chan error
+		tq, tf      float64
+		summary     string
 	)
 	if rc.QUERY_TIMEOUT > 0 {
 		timeoutChan = time.After(time.Duration(rc.QUERY_TIMEOUT) * time.Second)
 	}
 	resultChan = make(chan error)
+	start := time.Now()
 	go func() {
 		var err error
 		rows, err = ds.conn.Query(qry)
@@ -58,8 +61,9 @@ func query(args url.Values) (res interface{}) {
 		panic(fmt.Errorf("query timeout exceeded (%d)", rc.QUERY_TIMEOUT))
 	case err := <-resultChan:
 		assert(err)
+		tq = time.Since(start).Seconds()
 	}
-
+	start = time.Now()
 	cols, err := rows.Columns()
 	assert(err)
 	raw := make([][]byte, len(cols))
@@ -84,5 +88,15 @@ func query(args url.Values) (res interface{}) {
 				rc.QUERY_MAXROWS))
 		}
 	})
+	tf = time.Since(start).Seconds()
+	if len(recs) < 2 {
+		summary = fmt.Sprintf("Got %d row in %fs (query=%fs; fetch=%fs)",
+			len(recs), tq+tf, tq, tf)
+
+	} else {
+		summary = fmt.Sprintf("Got %d rows in %fs (query=%fs; fetch=%fs)",
+			len(recs), tq+tf, tq, tf)
+	}
+	args.Set("RESTIQUE_SUMMARY", summary)
 	return recs
 }
