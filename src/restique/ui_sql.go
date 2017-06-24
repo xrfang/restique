@@ -14,7 +14,7 @@ const (
 	QRY_RESULT = `
 <div style="position:relative;margin-top:60px;border:dotted lightgray">
 <div style="background:lightyellow;padding:6px">{{SUMMARY}}</div>
-<pre style="padding:6px;overflow:scroll">{{DATA}}</pre>
+<pre style="padding:6px;overflow:auto">{{DATA}}</pre>
 </div>
 `
 	QRY_CONTENT = `
