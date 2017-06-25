@@ -82,11 +82,11 @@ func query(args url.Values) (res interface{}) {
 				rec[cols[i]] = string(r)
 			}
 		}
-		recs = append(recs, rec)
 		if rc.QUERY_MAXROWS > 0 && len(recs) > rc.QUERY_MAXROWS {
-			panic(fmt.Errorf("at most %d rows can be fetched (try use LIMIT)",
-				rc.QUERY_MAXROWS))
+			args.Set("RESTIQUE_MAXROW", "1")
+			return
 		}
+		recs = append(recs, rec)
 	})
 	tf = time.Since(start).Seconds()
 	if len(recs) < 2 {
