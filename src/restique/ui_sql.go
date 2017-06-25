@@ -13,7 +13,7 @@ import (
 const (
 	QRY_RESULT = `
 <div style="position:relative;margin-top:60px;border:dotted lightgray">
-<div style="background:lightyellow;padding:6px">{{SUMMARY}}</div>
+<div style="background:{{HINTBG}};padding:6px">{{SUMMARY}}</div>
 <pre style="padding:6px;overflow:auto">{{DATA}}</pre>
 </div>
 `
@@ -109,9 +109,14 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		code := http.StatusOK
 		data := ""
 		summary := ""
+		hintbg := "lightyellow"
+		if arg.Get("RESTIQUE_MAXROW") == "1" {
+			hintbg = "pink"
+		}
 		switch res.(type) {
 		case httpError:
 			summary = res.(httpError).Mesg
+			hintbg = "pink"
 		default:
 			summary = arg.Get("RESTIQUE_SUMMARY")
 			http.SetCookie(w, &http.Cookie{
@@ -142,6 +147,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		}
 		qry_res = strings.Replace(QRY_RESULT, "{{SUMMARY}}", summary, 1)
 		qry_res = strings.Replace(qry_res, "{{DATA}}", data, 1)
+		qry_res = strings.Replace(qry_res, "{{HINTBG}}", hintbg, 1)
 	}
 	use := `<select name="use" style="padding:6px">`
 	for ds := range dsns {
