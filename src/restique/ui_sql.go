@@ -19,7 +19,8 @@ const (
 `
 	QRY_CONTENT = `
 <form method="POST" action="/uisql">
-<textarea style="display:block;width:100%%" name="sql" id="sql" rows=5 onkeyup="resize('sql')">{{SQL}}</textarea>
+<textarea name="sql" rows=2 style="display:block;width:100%%"
+onkeyup="resize(this)" onfocus="resize(this)">{{SQL}}</textarea>
 <div style="position:absolute;width:100%%">
 <span style="float:left">
 {{USE}}<input style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px;margin:10px" type="submit" name="SUBMIT"/>
@@ -30,14 +31,24 @@ const (
 <option {{MODEXE}}>EXEC</option>
 </select>
 </span>
+<span style="float:right;margin:10px;line-height:32px">
+<span>max height</span>
+<select name="maxh" id="maxh" style="padding:6px">
+<option value="12" {{XHS}}>SMALL</option>
+<option value="23" {{XHL}}>LARGE</option>
+<option value="9999" {{XHU}}>UNLIMITED</option>
+</select>
+|
+</span>
 </div>
 </form>
 {{RESULT}}
 <script>
-function resize(id) {
-  var a = document.getElementById(id);
-  a.style.height = 'auto';
-  a.style.height = (a.scrollHeight+10)+'px';
+function resize(a) {
+    var rows = a.value.split("\n").length + 1
+	var mh = document.getElementById("maxh").value;
+	if (rows > mh) rows = mh;
+    a.rows = rows
 }
 </script>
 `
@@ -65,10 +76,23 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			db = c.Value
 		}
 	}
+	maxh := args.Get("maxh")
+	if maxh == "" {
+		c, err := r.Cookie("maxh")
+		if err == nil {
+			maxh = c.Value
+		}
+	}
 	act := args.Get("act")
 	sql := args.Get("sql")
 	var qry_res string
 	if args.Get("SUBMIT") != "" {
+		http.SetCookie(w, &http.Cookie{
+			Name:    "maxh",
+			Value:   maxh,
+			Path:    "/",
+			Expires: time.Now().Add(365 * 24 * time.Hour),
+		})
 		var (
 			res interface{}
 			out bytes.Buffer
@@ -132,10 +156,22 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 	if act == "EXEC" {
 		modqry, modexe = modexe, modqry
 	}
+	var xh_small, xh_large, xh_nolimit string
+	switch maxh {
+	case "12":
+		xh_small = "selected"
+	case "23":
+		xh_large = "selected"
+	default:
+		xh_nolimit = "selected"
+	}
 	body := strings.Replace(QRY_CONTENT, "{{USE}}", use, 1)
 	body = strings.Replace(body, "{{SQL}}", sql, 1)
 	body = strings.Replace(body, "{{MODQRY}}", modqry, 1)
 	body = strings.Replace(body, "{{MODEXE}}", modexe, 1)
+	body = strings.Replace(body, "{{XHS}}", xh_small, 1)
+	body = strings.Replace(body, "{{XHL}}", xh_large, 1)
+	body = strings.Replace(body, "{{XHU}}", xh_nolimit, 1)
 	page := strings.Replace(PAGE, "{{VERSION}}", fmt.Sprintf("V%s.%s",
 		_G_REVS, _G_HASH), 1)
 	page = strings.Replace(page, "{{CONTENT}}", body, 1)
