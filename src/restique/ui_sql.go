@@ -84,7 +84,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	act := args.Get("act")
-	sql := args.Get("sql")
+	sql := strings.TrimSpace(args.Get("sql"))
 	var qry_res string
 	if args.Get("SUBMIT") != "" {
 		http.SetCookie(w, &http.Cookie{
@@ -93,57 +93,62 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			Path:    "/",
 			Expires: time.Now().Add(365 * 24 * time.Hour),
 		})
-		var (
-			res interface{}
-			out bytes.Buffer
-		)
-		arg := url.Values{
-			"use": []string{db},
-			"sql": []string{sql},
-		}
-		if act == "EXEC" {
-			res = exec(arg)
-		} else {
-			res = query(arg)
-		}
 		code := http.StatusOK
 		data := ""
 		summary := ""
 		hintbg := "lightyellow"
-		if arg.Get("RESTIQUE_MAXROW") == "1" {
+		if sql == "" {
+			summary = "empty statement"
 			hintbg = "pink"
-		}
-		switch res.(type) {
-		case httpError:
-			summary = res.(httpError).Mesg
-			hintbg = "pink"
-		default:
-			summary = arg.Get("RESTIQUE_SUMMARY")
-			http.SetCookie(w, &http.Cookie{
-				Name:    "use",
-				Value:   db,
-				Path:    "/",
-				Expires: time.Now().Add(365 * 24 * time.Hour),
-			})
-			enc := json.NewEncoder(&out)
-			enc.SetIndent("", "    ")
-			err := enc.Encode(res)
-			if err != nil {
-				summary = err.Error()
-			} else {
-				data = out.String()
+		} else {
+			var (
+				res interface{}
+				out bytes.Buffer
+			)
+			arg := url.Values{
+				"use": []string{db},
+				"sql": []string{sql},
 			}
-		}
-		delete(args, "REQUEST_URL_PATH")
-		lms <- logMessage{
-			Client:   r.RemoteAddr,
-			Time:     requestTime,
-			Duration: time.Since(requestTime).Seconds(),
-			Request:  r.URL.Path,
-			Params:   args,
-			Cookie:   r.Cookies(),
-			Code:     code,
-			Reply:    data,
+			if act == "EXEC" {
+				res = exec(arg)
+			} else {
+				res = query(arg)
+			}
+			if arg.Get("RESTIQUE_MAXROW") == "1" {
+				hintbg = "pink"
+			}
+			switch res.(type) {
+			case httpError:
+				summary = res.(httpError).Mesg
+				hintbg = "pink"
+			default:
+				summary = arg.Get("RESTIQUE_SUMMARY")
+				http.SetCookie(w, &http.Cookie{
+					Name:    "use",
+					Value:   db,
+					Path:    "/",
+					Expires: time.Now().Add(365 * 24 * time.Hour),
+				})
+				enc := json.NewEncoder(&out)
+				enc.SetIndent("", "    ")
+				err := enc.Encode(res)
+				if err != nil {
+					summary = err.Error()
+				} else {
+					data = out.String()
+				}
+			}
+			delete(args, "REQUEST_URL_PATH")
+			lms <- logMessage{
+				Client:   r.RemoteAddr,
+				Time:     requestTime,
+				Duration: time.Since(requestTime).Seconds(),
+				Request:  r.URL.Path,
+				Params:   args,
+				Cookie:   r.Cookies(),
+				Code:     code,
+				Reply:    data,
+			}
 		}
 		qry_res = strings.Replace(QRY_RESULT, "{{SUMMARY}}", summary, 1)
 		qry_res = strings.Replace(qry_res, "{{DATA}}", data, 1)
