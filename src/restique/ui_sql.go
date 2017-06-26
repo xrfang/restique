@@ -45,7 +45,7 @@ onkeyup="resize(this)" onfocus="resize(this)">{{SQL}}</textarea>
 {{RESULT}}
 <script>
 function doQuery() {
-    document.getElementById("qry").style.display = "none";
+    document.getElementById("qry").style.visibility = "hidden";
 }
 function resize(a) {
     var rows = a.value.split("\n").length + 1
