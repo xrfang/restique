@@ -18,12 +18,12 @@ const (
 </div>
 `
 	QRY_CONTENT = `
-<form method="POST" action="/uisql">
+<form method="POST" action="/uisql" onsubmit="doQuery()">
 <textarea name="sql" rows=2 style="display:block;width:100%%"
 onkeyup="resize(this)" onfocus="resize(this)">{{SQL}}</textarea>
 <div style="position:absolute;width:100%%">
 <span style="float:left">
-{{USE}}<input style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px;margin:10px" type="submit" name="SUBMIT"/>
+{{USE}}<input id="qry" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px;margin:10px" type="submit" name="SUBMIT"/>
 </span>
 <span style="float:right;margin-top:10px;margin-right:16px">mode:
 <select name="act" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px">
@@ -31,7 +31,7 @@ onkeyup="resize(this)" onfocus="resize(this)">{{SQL}}</textarea>
 <option {{MODEXE}}>EXEC</option>
 </select>
 </span>
-<span style="float:right;margin:10px;line-height:32px">
+<span style="float:right;margin:10px">
 <span>max height</span>
 <select name="maxh" id="maxh" style="padding:6px">
 <option value="12" {{XHS}}>SMALL</option>
@@ -44,6 +44,9 @@ onkeyup="resize(this)" onfocus="resize(this)">{{SQL}}</textarea>
 </form>
 {{RESULT}}
 <script>
+function doQuery() {
+    document.getElementById("qry").style.display = "none";
+}
 function resize(a) {
     var rows = a.value.split("\n").length + 1
 	var mh = document.getElementById("maxh").value;
