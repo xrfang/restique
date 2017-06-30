@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 )
@@ -158,7 +159,12 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		qry_res = strings.Replace(qry_res, "{{HINTBG}}", hintbg, 1)
 	}
 	use := `<select name="use" style="padding:6px">`
+	var dss []string
 	for ds := range dsns {
+		dss = append(dss, ds)
+	}
+	sort.Strings(dss)
+	for _, ds := range dss {
 		if ds == db {
 			use += fmt.Sprintf("\n\t"+`<option value="%s" selected>%s</option>`, ds, ds)
 		} else {
