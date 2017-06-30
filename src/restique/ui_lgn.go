@@ -7,7 +7,7 @@ import (
 )
 
 const LGN_CONTENT = `
-<div class="form" style="top:20%%">
+<div class="form" style="top:20%">
   <form method=POST action="/loginui">
     <input type="text" name="name" placeholder="username" value="{{name}}"/>
     <input type="password" name="code" placeholder="OTP code"/>
@@ -29,5 +29,5 @@ func uiLgn(w http.ResponseWriter, r *http.Request) {
 	html = strings.Replace(html, "{{name}}", r.URL.Query().Get("name"), 1)
 	html = strings.Replace(html, "{{err}}", r.URL.Query().Get("err"), 1)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, html)
+	fmt.Fprint(w, html)
 }

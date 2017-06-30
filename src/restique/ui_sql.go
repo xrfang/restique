@@ -19,9 +19,9 @@ const (
 `
 	QRY_CONTENT = `
 <form method="POST" action="/uisql" onsubmit="doQuery()">
-<textarea name="sql" rows=2 style="display:block;width:100%%"
+<textarea name="sql" rows=2 style="display:block;width:100%"
 onkeyup="resize(this)" onfocus="resize(this)">{{SQL}}</textarea>
-<div style="position:absolute;width:100%%">
+<div style="position:absolute;width:100%">
 <span style="float:left">
 {{USE}}<input id="qry" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px;margin:10px" type="submit" name="SUBMIT"/>
 </span>
@@ -191,5 +191,5 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 	page = strings.Replace(page, "{{CONTENT}}", body, 1)
 	page = strings.Replace(page, "{{RESULT}}", qry_res, 1)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, page)
+	fmt.Fprint(w, page)
 }
