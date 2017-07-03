@@ -71,7 +71,8 @@ func tabulate(data queryResults, query string) (string, string) {
 			v := fmt.Sprintf("%v", d[k.key])
 			fields = append(fields, v)
 			v = html.EscapeString(v)
-			tab = append(tab, `<td style="padding:6px">`+v+`</td>`)
+			tab = append(tab, `<td style="padding:6px;vertical-align:top"><pre>`+
+				v+`</pre></td>`)
 		}
 		sample(fields)
 		tab = append(tab, `</tr>`)
