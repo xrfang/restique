@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -15,7 +13,7 @@ const (
 	QRY_RESULT = `
 <div style="position:relative;margin-top:60px;border:dotted lightgray">
 <div style="background:{{HINTBG}};padding:6px">{{SUMMARY}}</div>
-<pre style="padding:6px;overflow:auto">{{DATA}}</pre>
+<pre style="margin:0px;overflow:auto">{{DATA}}</pre>
 </div>
 `
 	QRY_CONTENT = `
@@ -99,16 +97,14 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		})
 		code := http.StatusOK
 		data := ""
+		sample := ""
 		summary := ""
 		hintbg := "lightyellow"
 		if sql == "" {
 			summary = "empty statement"
 			hintbg = "pink"
 		} else {
-			var (
-				res interface{}
-				out bytes.Buffer
-			)
+			var res interface{}
 			arg := url.Values{
 				"use": []string{db},
 				"sql": []string{sql},
@@ -125,7 +121,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			case httpError:
 				summary = res.(httpError).Mesg
 				hintbg = "pink"
-			default:
+			case queryResults:
 				summary = arg.Get("RESTIQUE_SUMMARY")
 				http.SetCookie(w, &http.Cookie{
 					Name:    "use",
@@ -133,14 +129,10 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 					Path:    "/",
 					Expires: time.Now().Add(365 * 24 * time.Hour),
 				})
-				enc := json.NewEncoder(&out)
-				enc.SetIndent("", "    ")
-				err := enc.Encode(res)
-				if err != nil {
-					summary = err.Error()
-				} else {
-					data = out.String()
-				}
+				data, sample = tabulate(res.(queryResults), sql)
+			default:
+				summary = fmt.Sprintf("invalid result type: %T", res)
+				hintbg = "pink"
 			}
 			delete(args, "REQUEST_URL_PATH")
 			lms <- logMessage{
@@ -151,7 +143,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 				Params:   args,
 				Cookie:   r.Cookies(),
 				Code:     code,
-				Reply:    data,
+				Reply:    sample,
 			}
 		}
 		qry_res = strings.Replace(QRY_RESULT, "{{SUMMARY}}", summary, 1)
