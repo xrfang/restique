@@ -71,10 +71,10 @@ func query(args url.Values) (res interface{}) {
 	for i, _ := range raw {
 		ptr[i] = &raw[i]
 	}
-	recs := []map[string]interface{}{}
+	recs := queryResults{}
 	RangeRows(rows, func() {
 		assert(rows.Scan(ptr...))
-		rec := map[string]interface{}{}
+		rec := queryResult{}
 		for i, r := range raw {
 			if r == nil {
 				rec[cols[i]] = nil

@@ -8,11 +8,6 @@ import (
 	"time"
 )
 
-type sqlExecRes struct {
-	LastInsertId string `json:"last_insert_id"`
-	RowsAffected string `json:"rows_affected"`
-}
-
 func exec(args url.Values) (res interface{}) {
 	use := args.Get("use")
 	qry := args.Get("sql")
@@ -48,20 +43,25 @@ func exec(args url.Values) (res interface{}) {
 	qr, err := ds.conn.Exec(qry)
 	elapsed := time.Since(start).Seconds()
 	assert(err)
-	var xr sqlExecRes
+	var LastInsertId, RowsAffected string
 	lid, err := qr.LastInsertId()
 	if err == nil {
-		xr.LastInsertId = fmt.Sprintf("%d", lid)
+		LastInsertId = fmt.Sprintf("%d", lid)
 	} else {
-		xr.LastInsertId = err.Error()
+		LastInsertId = err.Error()
 	}
 	ra, err := qr.RowsAffected()
 	if err == nil {
-		xr.RowsAffected = fmt.Sprintf("%d", ra)
+		RowsAffected = fmt.Sprintf("%d", ra)
 	} else {
-		xr.RowsAffected = err.Error()
+		RowsAffected = err.Error()
 	}
 	summary := fmt.Sprintf("Executed statement in %fs", elapsed)
 	args.Set("RESTIQUE_SUMMARY", summary)
-	return xr
+	return queryResults{
+		queryResult{
+			"last_insert_id": LastInsertId,
+			"rows_affected":  RowsAffected,
+		},
+	}
 }
