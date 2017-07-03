@@ -24,8 +24,14 @@ func handleSignals() {
 }
 
 func reloadConfig() {
+	url := "://127.0.0.1:" + rc.SERVICE_PORT + "/pid"
+	if rc.TLS_CERT == "" || rc.TLS_PKEY == "" {
+		url = "http" + url
+	} else {
+		url = "https" + url
+	}
 	hc := http.Client{Timeout: 3 * time.Second}
-	resp, err := hc.Get("http://127.0.0.1:" + rc.SERVICE_PORT + "/pid")
+	resp, err := hc.Get(url)
 	if err != nil {
 		return
 	}
