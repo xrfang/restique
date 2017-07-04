@@ -52,27 +52,26 @@ func tabulate(data queryResults, query string) (string, string) {
 		}
 		dat = append(dat, str)
 	}
-	tab := []string{`<table border="0" width="100%"><tr style="background:#555555;color:white">`}
+	tab := []string{`<table border="0" width="100%"><tr class="headrow">`}
 	fields := []string{}
 	for _, k := range keys {
 		fields = append(fields, k.key)
-		tab = append(tab, `<th style="padding:6px;text-align:left">`+k.key+`</th>`)
+		tab = append(tab, `<th class="thcell">`+k.key+`</th>`)
 	}
 	sample(fields)
 	tab = append(tab, `</tr>`)
 	for i, d := range data {
 		if i%2 == 0 {
-			tab = append(tab, `<tr>`)
+			tab = append(tab, `<tr class="evenrow">`)
 		} else {
-			tab = append(tab, `<tr style="background:#eeeeee">`)
+			tab = append(tab, `<tr class="oddrow">`)
 		}
 		fields = []string{}
 		for _, k := range keys {
 			v := fmt.Sprintf("%v", d[k.key])
 			fields = append(fields, v)
 			v = html.EscapeString(v)
-			tab = append(tab, `<td style="padding:6px;vertical-align:top"><pre>`+
-				v+`</pre></td>`)
+			tab = append(tab, `<td class="tdcell"><pre>`+v+`</pre></td>`)
 		}
 		sample(fields)
 		tab = append(tab, `</tr>`)
