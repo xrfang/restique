@@ -114,6 +114,7 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var args url.Values
 		var out bytes.Buffer
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		requestTime := time.Now()
 		defer func() {
 			code := http.StatusOK
