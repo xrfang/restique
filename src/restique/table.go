@@ -10,16 +10,13 @@ import (
 type (
 	queryResult  map[string]interface{}
 	queryResults []queryResult
-)
-
-func tabulate(data queryResults, query string) (string, string) {
-	if len(data) == 0 {
-		return "", ""
-	}
-	type keyInfo struct {
+	keyInfo      struct {
 		key string
 		pos int
 	}
+)
+
+func getKeys(data queryResults, query string) []keyInfo {
 	var keys []keyInfo
 	for k := range data[0] {
 		keys = append(keys, keyInfo{key: k, pos: strings.Index(query, k)})
@@ -41,6 +38,14 @@ func tabulate(data queryResults, query string) (string, string) {
 		}
 		return pi < pj
 	})
+	return keys
+}
+
+func tabulate(data queryResults, query string) (string, string) {
+	if len(data) == 0 {
+		return "", ""
+	}
+	keys := getKeys(data, query)
 	dat := []string{}
 	sample := func(vals []string) {
 		if len(dat) > 6 {

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -28,23 +30,23 @@ onkeyup="resize(this)" onfocus="resize(this)">{{SQL}}</textarea>
 <select name="act" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px">
 <option {{MODQRY}}>QUERY</option>
 <option {{MODEXE}}>EXEC</option>
-</select>
-</span>
-<span style="float:right;margin:10px">
-<span>max height</span>
+</select></span><span style="float:right;margin:10px">max height:
 <select name="maxh" id="maxh" style="padding:6px">
 <option value="12" {{XHS}}>SMALL</option>
 <option value="23" {{XHL}}>LARGE</option>
 <option value="9999" {{XHU}}>UNLIMITED</option>
-</select>
-|
-</span>
+</select></span><span style="float:right;margin:10px">result:
+<select name="ret" style="padding:6px">
+<option value="view" {{XHS}}>view in browser</option>
+<option value="csv" {{XHL}}>download CSV</option>
+<option value="json" {{XHU}}>download JSON</option>
+</select></span>
 </div>
 </form>
 {{RESULT}}
 <script>
 function doQuery() {
-    document.getElementById("qry").style.visibility = "hidden";
+    document.getElementById("qry").style.background = "pink";
 }
 function resize(a) {
     var rows = a.value.split("\n").length + 1
@@ -85,9 +87,13 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			maxh = c.Value
 		}
 	}
+	ret := args.Get("ret")
 	act := args.Get("act")
 	sql := strings.TrimSpace(args.Get("sql"))
-	var qry_res string
+	var (
+		qry_res string
+		rawdata queryResults
+	)
 	if args.Get("SUBMIT") != "" {
 		http.SetCookie(w, &http.Cookie{
 			Name:    "maxh",
@@ -122,6 +128,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 				summary = res.(httpError).Mesg
 				hintbg = "pink"
 			case queryResults:
+				rawdata = res.(queryResults)
 				summary = arg.Get("RESTIQUE_SUMMARY")
 				http.SetCookie(w, &http.Cookie{
 					Name:    "use",
@@ -163,31 +170,63 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			use += fmt.Sprintf("\n\t"+`<option value="%s">%s</option>`, ds, ds)
 		}
 	}
-	modqry := "selected"
-	modexe := ""
-	if act == "EXEC" {
-		modqry, modexe = modexe, modqry
-	}
-	var xh_small, xh_large, xh_nolimit string
-	switch maxh {
-	case "12":
-		xh_small = "selected"
-	case "23":
-		xh_large = "selected"
+	switch ret {
+	case "csv":
+		fn := fmt.Sprintf("restique_query_result_%s.csv",
+			time.Now().Format("2006-01-02_15.04.05"))
+		w.Header().Add("Content-Disposition", "attachment; filename="+fn)
+		if len(rawdata) > 0 {
+			enc := csv.NewWriter(w)
+			enc.UseCRLF = true
+			var cols []string
+			keys := getKeys(rawdata, sql)
+			for _, k := range keys {
+				cols = append(cols, k.key)
+			}
+			assert(enc.Write(cols))
+			for _, rd := range rawdata {
+				var row []string
+				for _, c := range cols {
+					row = append(row, fmt.Sprintf("%v", rd[c]))
+				}
+				assert(enc.Write(row))
+			}
+			enc.Flush()
+		}
+	case "json":
+		fn := fmt.Sprintf("restique_query_result_%s.json",
+			time.Now().Format("2006-01-02_15.04.05"))
+		w.Header().Add("Content-Disposition", "attachment; filename="+fn)
+		enc := json.NewEncoder(w)
+		enc.SetIndent("", "    ")
+		assert(enc.Encode(rawdata))
 	default:
-		xh_nolimit = "selected"
+		modqry := "selected"
+		modexe := ""
+		if act == "EXEC" {
+			modqry, modexe = modexe, modqry
+		}
+		var xh_small, xh_large, xh_nolimit string
+		switch maxh {
+		case "12":
+			xh_small = "selected"
+		case "23":
+			xh_large = "selected"
+		default:
+			xh_nolimit = "selected"
+		}
+		body := strings.Replace(QRY_CONTENT, "{{USE}}", use, 1)
+		body = strings.Replace(body, "{{SQL}}", sql, 1)
+		body = strings.Replace(body, "{{MODQRY}}", modqry, 1)
+		body = strings.Replace(body, "{{MODEXE}}", modexe, 1)
+		body = strings.Replace(body, "{{XHS}}", xh_small, 1)
+		body = strings.Replace(body, "{{XHL}}", xh_large, 1)
+		body = strings.Replace(body, "{{XHU}}", xh_nolimit, 1)
+		page := strings.Replace(PAGE, "{{VERSION}}", fmt.Sprintf("V%s.%s",
+			_G_REVS, _G_HASH), 1)
+		page = strings.Replace(page, "{{CONTENT}}", body, 1)
+		page = strings.Replace(page, "{{RESULT}}", qry_res, 1)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		fmt.Fprint(w, page)
 	}
-	body := strings.Replace(QRY_CONTENT, "{{USE}}", use, 1)
-	body = strings.Replace(body, "{{SQL}}", sql, 1)
-	body = strings.Replace(body, "{{MODQRY}}", modqry, 1)
-	body = strings.Replace(body, "{{MODEXE}}", modexe, 1)
-	body = strings.Replace(body, "{{XHS}}", xh_small, 1)
-	body = strings.Replace(body, "{{XHL}}", xh_large, 1)
-	body = strings.Replace(body, "{{XHU}}", xh_nolimit, 1)
-	page := strings.Replace(PAGE, "{{VERSION}}", fmt.Sprintf("V%s.%s",
-		_G_REVS, _G_HASH), 1)
-	page = strings.Replace(page, "{{CONTENT}}", body, 1)
-	page = strings.Replace(page, "{{RESULT}}", qry_res, 1)
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprint(w, page)
 }
