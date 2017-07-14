@@ -54,8 +54,10 @@ func SetAuth(user, pass, secret string) {
 
 func LoadAuthDb() {
 	f, err := os.Open(rc.AUTH_PATH)
-	assert(err)
+	if err != nil {
+		return
+	}
 	defer f.Close()
 	dec := json.NewDecoder(f)
-	assert(dec.Decode(&authDb))
+	dec.Decode(&authDb)
 }

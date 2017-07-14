@@ -42,6 +42,11 @@ const PAGE = `
 .form button:hover,.form button:active,.form button:focus {
   background: #43A047;
 }
+.headrow {background:#666666;color:white}
+.evenrow {background:#f8f8f8}
+.oddrow {background:#e8e8e8}
+.thcell {padding:6px;text-align:left}
+.tdcell {padding:6px;vertical-align:top}
 </style>
 </head>
 <body>
