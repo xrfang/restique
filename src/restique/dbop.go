@@ -12,7 +12,7 @@ type dsInfo struct {
 	Driver string
 	Dsn    string
 	Memo   string
-	conn   *sql.DB
+	//conn   *sql.DB
 }
 
 var dsns map[string]dsInfo

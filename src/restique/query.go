@@ -8,44 +8,14 @@ import (
 	"time"
 )
 
-func query(args url.Values) (res interface{}) {
-	use := args.Get("use")
-	qry := args.Get("sql")
-	if use == "" || qry == "" {
-		return httpError{
-			Code: http.StatusSeeOther,
-			Mesg: "/uisql?action=query&use=" + use,
-		}
-	}
-	ds, ok := dsns[use]
-	if !ok {
-		return httpError{
-			Code: http.StatusNotFound,
-			Mesg: "[use] is not a valid data source",
-		}
-	}
-	defer func() {
-		if e := recover(); e != nil {
-			ds.conn.Close()
-			ds.conn = nil
-			res = httpError{
-				Code: http.StatusInternalServerError,
-				Mesg: e.(error).Error(),
-			}
-		}
-	}()
-	if ds.conn == nil {
-		conn, err := sql.Open(ds.Driver, ds.Dsn)
-		assert(err)
-		ds.conn = conn
-	}
+func doqry(conn *sql.DB, args url.Values) (queryResults, float64, float64) {
 	var (
 		rows        *sql.Rows
 		timeoutChan <-chan time.Time
 		resultChan  chan error
 		tq, tf      float64
-		summary     string
 	)
+	qry := args.Get("sql")
 	if rc.QUERY_TIMEOUT > 0 {
 		timeoutChan = time.After(time.Duration(rc.QUERY_TIMEOUT) * time.Second)
 	}
@@ -53,7 +23,7 @@ func query(args url.Values) (res interface{}) {
 	start := time.Now()
 	go func() {
 		var err error
-		rows, err = ds.conn.Query(qry)
+		rows, err = conn.Query(qry)
 		resultChan <- err
 	}()
 	select {
@@ -89,6 +59,37 @@ func query(args url.Values) (res interface{}) {
 		recs = append(recs, rec)
 	})
 	tf = time.Since(start).Seconds()
+	return recs, tq, tf
+}
+
+func query(args url.Values) (res interface{}) {
+	use := args.Get("use")
+	qry := args.Get("sql")
+	if use == "" || qry == "" {
+		return httpError{
+			Code: http.StatusSeeOther,
+			Mesg: "/uisql?action=query&use=" + use,
+		}
+	}
+	ds, ok := dsns[use]
+	if !ok {
+		return httpError{
+			Code: http.StatusNotFound,
+			Mesg: "[use] is not a valid data source",
+		}
+	}
+	defer func() {
+		if e := recover(); e != nil {
+			res = httpError{
+				Code: http.StatusInternalServerError,
+				Mesg: e.(error).Error(),
+			}
+		}
+	}()
+	conn, err := sql.Open(ds.Driver, ds.Dsn)
+	assert(err)
+	recs, tq, tf := doqry(conn, args)
+	summary := ""
 	if len(recs) < 2 {
 		summary = fmt.Sprintf("Got %d row in %fs (query=%fs; fetch=%fs)",
 			len(recs), tq+tf, tq, tf)
