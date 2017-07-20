@@ -51,6 +51,21 @@ func exec(args url.Values) (res interface{}) {
 			Mesg: "[use] is not a valid data source",
 		}
 	}
+	var (
+		dss []dsInfo
+		els float64
+		rec queryResults
+		err error
+	)
+	if ds.Driver == "[multi]" {
+		dss, err = ExpandMultiDSN(ds)
+		if err != nil {
+			return err
+		}
+	} else {
+		ds.Name = use
+		dss = append(dss, ds)
+	}
 	defer func() {
 		if e := recover(); e != nil {
 			res = httpError{
@@ -59,10 +74,19 @@ func exec(args url.Values) (res interface{}) {
 			}
 		}
 	}()
-	conn, err := sql.Open(ds.Driver, ds.Dsn)
-	assert(err)
-	res, elapsed := doexe(conn, args)
-	summary := fmt.Sprintf("Executed statement in %fs", elapsed)
+	for _, ds := range dss {
+		conn, err := sql.Open(ds.Driver, ds.Dsn)
+		assert(err)
+		data, elapsed := doexe(conn, args)
+		els += elapsed
+		for _, d := range data {
+			if len(dss) > 1 {
+				d[rc.DB_TAG] = ds.Name
+			}
+			rec = append(rec, d)
+		}
+	}
+	summary := fmt.Sprintf("Executed statement in %fs", els)
 	args.Set("RESTIQUE_SUMMARY", summary)
-	return res
+	return rec
 }

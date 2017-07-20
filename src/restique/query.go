@@ -74,9 +74,24 @@ func query(args url.Values) (res interface{}) {
 	ds, ok := dsns[use]
 	if !ok {
 		return httpError{
-			Code: http.StatusNotFound,
+			Code: http.StatusInternalServerError,
 			Mesg: "[use] is not a valid data source",
 		}
+	}
+	var (
+		dss      []dsInfo
+		recs     queryResults
+		tqs, tfs float64
+		err      error
+	)
+	if ds.Driver == "[multi]" {
+		dss, err = ExpandMultiDSN(ds)
+		if err != nil {
+			return err
+		}
+	} else {
+		ds.Name = use
+		dss = append(dss, ds)
 	}
 	defer func() {
 		if e := recover(); e != nil {
@@ -86,17 +101,27 @@ func query(args url.Values) (res interface{}) {
 			}
 		}
 	}()
-	conn, err := sql.Open(ds.Driver, ds.Dsn)
-	assert(err)
-	recs, tq, tf := doqry(conn, args)
+	for _, ds := range dss {
+		conn, err := sql.Open(ds.Driver, ds.Dsn)
+		assert(err)
+		data, tq, tf := doqry(conn, args)
+		tqs += tq
+		tfs += tf
+		for _, d := range data {
+			if len(dss) > 1 {
+				d[rc.DB_TAG] = ds.Name
+			}
+			recs = append(recs, d)
+		}
+	}
 	summary := ""
 	if len(recs) < 2 {
 		summary = fmt.Sprintf("Got %d row in %fs (query=%fs; fetch=%fs)",
-			len(recs), tq+tf, tq, tf)
+			len(recs), tqs+tfs, tqs, tfs)
 
 	} else {
 		summary = fmt.Sprintf("Got %d rows in %fs (query=%fs; fetch=%fs)",
-			len(recs), tq+tf, tq, tf)
+			len(recs), tqs+tfs, tqs, tfs)
 	}
 	args.Set("RESTIQUE_SUMMARY", summary)
 	return recs

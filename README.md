@@ -46,6 +46,20 @@ authentication utilities, such as [FreeOTP](https://freeotp.github.io/).
 1. There are a few command-line options not to be used in the configuration file:
     - `-dsn-init`: used to create a DSN configuration template
 	- `-user` and `-pass`: used to create or update user authentication
+1. RESTIQUE offers the capability to execute SQL query on multiple databases, which
+   I call "parallel execution". To enable this feature, configure a special "combined"
+   DSN in the configuration file, e.g.:
+
+        "combined": {
+			"driver": "[multi]",
+			"dsn": "conn1,conn2",
+			"memo": "this is a combined DSN"
+		}
+   In the above configuration, `[multi]` is the special name to identify a combined DSN,
+   `conn1,conn2` are defined DSNs, which themselves cannot be combined.  Also note that
+   although I call it "parallel", the query actually takes place sequentially, i.e.,
+   conn1, then conn2...  If any error happens, RESTIQUE returns immediately, there is 
+   NO transaction amongst multiple databases.
 
 ## APIs
 

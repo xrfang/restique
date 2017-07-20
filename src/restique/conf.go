@@ -23,6 +23,7 @@ type restiqueConf struct {
 	LOG_PATH      string
 	LOG_ROTATE    int
 	OPEN_HATEOAS  bool
+	DB_TAG        string
 }
 
 var rc restiqueConf
@@ -36,6 +37,7 @@ func parseConfig(fn string) {
 	rc.OTP_DIGITS = 6
 	rc.OTP_ISSUER = "restique"
 	rc.OTP_TIMEOUT = 30
+	rc.DB_TAG = "[DB]"
 	if fn != "" {
 		assert(conf.ParseFile(fn, &rc))
 	}

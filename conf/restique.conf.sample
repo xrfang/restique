@@ -47,3 +47,6 @@ DSN_PATH=
 ## authenticated user can view API and/or version info.
 #OPEN_HATEOAS=false
 
+## when executing SQL against multiple database, restique will add an extra
+## colume "[DB]" to identify the source of data.
+#DB_TAG=[DB]

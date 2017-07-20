@@ -22,6 +22,12 @@ func getKeys(data queryResults, query string) []keyInfo {
 		keys = append(keys, keyInfo{key: k, pos: strings.Index(query, k)})
 	}
 	sort.Slice(keys, func(i, j int) bool {
+		if keys[i].key == rc.DB_TAG {
+			return true
+		}
+		if keys[j].key == rc.DB_TAG {
+			return false
+		}
 		pi := keys[i].pos
 		pj := keys[j].pos
 		if pi < 0 {
