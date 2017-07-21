@@ -20,7 +20,10 @@ import (
 func main() {
 	defer func() {
 		if e := recover(); e != nil {
-			fmt.Printf("ERROR: %v\n", e)
+			msg := trace("ERROR: %v", e)
+			for _, m := range msg {
+				fmt.Println(m)
+			}
 		}
 	}()
 
