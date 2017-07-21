@@ -24,6 +24,7 @@ type restiqueConf struct {
 	LOG_ROTATE    int
 	OPEN_HATEOAS  bool
 	DB_TAG        string
+	PID_FILE      string
 }
 
 var rc restiqueConf
@@ -38,6 +39,7 @@ func parseConfig(fn string) {
 	rc.OTP_ISSUER = "restique"
 	rc.OTP_TIMEOUT = 30
 	rc.DB_TAG = "[DB]"
+	rc.PID_FILE = "/var/run/restique.pid"
 	if fn != "" {
 		assert(conf.ParseFile(fn, &rc))
 	}

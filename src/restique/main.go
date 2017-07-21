@@ -195,10 +195,9 @@ func main() {
 	}
 
 	handleSignals()
-
+	savePid()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handler(home))
-	mux.HandleFunc("/pid", getpid)
 	mux.HandleFunc("/api", handler(help))
 	mux.HandleFunc("/version", handler(version))
 	mux.HandleFunc("/login", handler(login))

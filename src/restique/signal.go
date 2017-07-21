@@ -1,12 +1,10 @@
 package main
 
 import (
-	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
-	"time"
 )
 
 func handleSignals() {
@@ -23,30 +21,23 @@ func handleSignals() {
 	}()
 }
 
+func savePid() {
+	f, err := os.Create(rc.PID_FILE)
+	assert(err)
+	defer f.Close()
+	_, err = f.Write([]byte(strconv.Itoa(os.Getpid())))
+	assert(err)
+}
+
 func reloadConfig() {
-	url := "://127.0.0.1:" + rc.SERVICE_PORT + "/pid"
-	if rc.TLS_CERT == "" || rc.TLS_PKEY == "" {
-		url = "http" + url
-	} else {
-		url = "https" + url
-	}
-	hc := http.Client{Timeout: 3 * time.Second}
-	resp, err := hc.Get(url)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	buf := make([]byte, 6)
-	n, _ := resp.Body.Read(buf)
-	if n == 0 {
-		return
-	}
+	f, err := os.Open(rc.PID_FILE)
+	assert(err)
+	defer f.Close()
+	buf := make([]byte, 16)
+	n, err := f.Read(buf)
+	assert(err)
 	pid, _ := strconv.Atoi(string(buf[:n]))
-	if pid == 0 {
-		return
-	}
 	p, err := os.FindProcess(pid)
-	if err == nil {
-		p.Signal(syscall.SIGHUP)
-	}
+	assert(err)
+	p.Signal(syscall.SIGHUP)
 }
