@@ -39,7 +39,7 @@ func parseConfig(fn string) {
 	rc.OTP_ISSUER = "restique"
 	rc.OTP_TIMEOUT = 30
 	rc.DB_TAG = "[DB]"
-	rc.PID_FILE = "/var/run/restique.pid"
+	rc.PID_FILE = "./restique.pid"
 	if fn != "" {
 		assert(conf.ParseFile(fn, &rc))
 	}

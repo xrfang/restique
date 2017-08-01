@@ -1,6 +1,6 @@
 #SERVICE_PORT=32779
 
-#PID_FILE=/var/run/restique.pid
+#PID_FILE=./restique.pid
 
 ## If both TLS certificate and private key are provided, enable HTTPS,
 ## otherwise serve via plain HTTP.
