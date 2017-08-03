@@ -47,6 +47,10 @@ const PAGE = `
 .oddrow {background:#e8e8e8}
 .thcell {padding:6px;text-align:left}
 .tdcell {padding:6px;vertical-align:top}
+.oddhist {padding:5px;background:#e8e8e8;cursor:pointer}
+.evenhist {padding:5px;background:#f8f8f8;cursor:pointer}
+.oddhist:hover {background:white}
+.evenhist:hover {background:white}
 </style>
 </head>
 <body>

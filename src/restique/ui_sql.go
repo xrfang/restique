@@ -20,12 +20,13 @@ const (
 `
 	QRY_CONTENT = `
 <form method="POST" action="/uisql" onsubmit="doQuery()">
-<textarea name="sql" rows=2 style="display:block;width:100%"
+<textarea name="sql" id="sql" rows=2 style="display:block;width:100%"
 onkeyup="resize(this)" onfocus="resize(this)">{{SQL}}</textarea>
 <div style="position:absolute;width:100%">
 <span style="float:left">
 {{USE}}<input id="qry" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px;margin:10px" type="submit" name="SUBMIT"/>
-</span>
+</span><button id="rx" onclick="toggleHistory()"
+type="button" style="padding-top:4px;padding-bottom:4px;padding-left:8px;padding-right:8px;margin-top:10px;font-size:1.1em">&rx;</button>
 <span style="float:right;margin-top:10px;margin-right:16px">mode:
 <select name="act" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px">
 <option {{MODQRY}}>QUERY</option>
@@ -43,6 +44,12 @@ onkeyup="resize(this)" onfocus="resize(this)">{{SQL}}</textarea>
 </select></span>
 </div>
 </form>
+<div style="position:relative;margin-top:60px;margin-bottom:-45px;border:inset
+1px;display:none" id="history">
+<div class="oddhist" onclick="use(this)">SELECT * FROM table1</div>
+<div class="evenhist" onclick="use(this)">SELECT id,updated FROM table2
+    WHERE shop_id=102345</div>
+</div>
 {{RESULT}}
 <script>
 function doQuery() {
@@ -53,6 +60,24 @@ function resize(a) {
 	var mh = document.getElementById("maxh").value;
 	if (rows > mh) rows = mh;
     a.rows = rows
+}
+function toggleHistory() {
+	var pressed = "pink"
+    var rx = document.getElementById("rx");
+	var hist = document.getElementById("history");
+	if (rx.style.background == pressed) {
+		rx.style.background = ""
+		hist.style.display = "none"
+	} else {
+		rx.style.background = pressed
+		hist.style.display = ""
+	}
+}
+function use(item) {
+	var sql = document.getElementById("sql")
+	sql.value = item.textContent //innerText
+	resize(sql)
+	toggleHistory()
 }
 </script>
 `
