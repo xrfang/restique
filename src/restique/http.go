@@ -156,14 +156,9 @@ func handler(proc func(url.Values) interface{}) http.HandlerFunc {
 		if !sessions.SessionOK(r) {
 			panic(httpError{Code: http.StatusSeeOther, Mesg: "/uilgn"})
 		}
-		if r.Method == "POST" || r.Method == "PUT" {
-			r.ParseForm()
-			args = r.Form
-		} else {
-			args = r.URL.Query()
-		}
-		args["REQUEST_URL_PATH"] = []string{r.URL.Path}
-		data := proc(args)
+		r.ParseForm()
+		r.Form.Add("REQUEST_URL_PATH", r.URL.Path)
+		data := proc(r.Form)
 		if e, ok := data.(httpError); ok {
 			if r.URL.Path == "/loginui" {
 				panic(httpError{
