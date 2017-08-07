@@ -75,7 +75,7 @@ function toggleHistory() {
 }
 function use(item) {
 	var sql = document.getElementById("sql")
-	sql.value = item.textContent //innerText
+	sql.value = item.textContent
 	resize(sql)
 	toggleHistory()
 }
@@ -115,6 +115,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 	ret := args.Get("ret")
 	act := args.Get("act")
 	sql := strings.TrimSpace(args.Get("sql"))
+
 	var (
 		qry_res string
 		rawdata queryResults
