@@ -11,6 +11,7 @@ type restiqueConf struct {
 	TLS_PKEY      string
 	AUTH_PATH     string
 	DSN_PATH      string
+	HIST_PATH     string
 	OTP_ISSUER    string
 	OTP_TIMEOUT   uint
 	OTP_DIGITS    int
@@ -51,5 +52,8 @@ func parseConfig(fn string) {
 	}
 	if rc.LOG_PATH == "" {
 		rc.LOG_PATH = "./logs"
+	}
+	if rc.HIST_PATH == "" {
+		rc.HIST_PATH = "./history"
 	}
 }
