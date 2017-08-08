@@ -25,6 +25,7 @@ func (he httpError) Error() string {
 type session struct {
 	id string
 	ip string
+	un string
 	ex time.Time
 	lt time.Time
 }
@@ -66,27 +67,32 @@ func (ss sessionStore) NewSession(r *http.Request) string {
 	now := time.Now()
 	idle := time.Duration(rc.IDLE_TIMEOUT) * time.Second
 	life := time.Duration(rc.SESSION_LIFE) * time.Second
+	ss.Lock()
 	ss.s[sid] = session{
 		id: sid,
 		ip: ip,
+		un: r.Form.Get("name"),
 		ex: now.Add(idle),
 		lt: now.Add(life),
 	}
+	ss.Unlock()
 	return sid
 }
 
-func (ss sessionStore) Validate(r *http.Request) bool {
+func (ss sessionStore) Get(r *http.Request) (session, bool) {
 	c, err := r.Cookie("session")
 	if err != nil {
-		return false
+		return session{}, false
 	}
+	ss.Lock()
+	defer ss.Unlock()
 	s, ok := ss.s[c.Value]
 	if !ok {
-		return false
+		return session{}, false
 	}
 	ip := strings.Split(r.RemoteAddr, ":")[0]
 	if s.ex.Before(time.Now()) || s.ip != ip {
-		return false
+		return session{}, false
 	}
 	ex := time.Now().Add(time.Duration(rc.IDLE_TIMEOUT) * time.Second)
 	if ex.After(s.lt) {
@@ -95,7 +101,7 @@ func (ss sessionStore) Validate(r *http.Request) bool {
 		s.ex = ex
 	}
 	ss.s[c.Value] = s
-	return true
+	return s, true
 }
 
 func (ss sessionStore) SessionOK(r *http.Request) bool {
@@ -107,7 +113,8 @@ func (ss sessionStore) SessionOK(r *http.Request) bool {
 			return true
 		}
 	}
-	return ss.Validate(r)
+	_, ok := ss.Get(r)
+	return ok
 }
 
 func handler(proc func(url.Values) interface{}) http.HandlerFunc {

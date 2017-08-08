@@ -23,18 +23,20 @@ TLS_PKEY=
 ## to 0, otherwise an HTTP/500 error will be returned.
 #QUERY_MAXROWS=0
 
-## If not specified, restique stores user data in ./restique_auth.json
-AUTH_PATH=
+## user authentication info file name
+#AUTH_PATH=./restique_auth.json
 
-## If not specified, restique stores DSN info in ./restique_dsns.json
-DSN_PATH=
+## DSN info file name
+#DSN_PATH=./restique_dsns.json
 
-## If not specified, restique stores recently executed SQLs (per user) under
-## ./history
-#HIST_PATH=
+## executed SQLs history (per user) directory
+#HIST_PATH=./history
 
-## LOGS are stored in LOG_PATH/<date>.log. If not specified, LOG_PATH=./logs
-#LOG_PATH=
+## Max number of history entries for each user
+#HIST_ENTRIES=10
+
+## LOGS are stored in LOG_PATH/<date>.log
+#LOG_PATH=./logs
 
 ## Log files older than LOG_ROTATE days will be automatically removed. By
 ## default, LOG_ROTATE is 0 which means this feature is disabled.

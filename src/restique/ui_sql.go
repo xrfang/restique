@@ -114,8 +114,8 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 	}
 	ret := args.Get("ret")
 	act := args.Get("act")
-	sql := strings.TrimSpace(args.Get("sql"))
-
+	s, _ := sessions.Get(r)
+	q := mfu.Get(s.un, args.Get("sql"))
 	var (
 		qry_res string
 		rawdata queryResults
@@ -132,14 +132,14 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		sample := ""
 		summary := ""
 		hintbg := "lightyellow"
-		if sql == "" {
+		if q.rawsql == "" {
 			summary = "empty statement"
 			hintbg = "pink"
 		} else {
 			var res interface{}
 			arg := url.Values{
 				"use": []string{db},
-				"sql": []string{sql},
+				"sql": []string{q.rawsql},
 			}
 			if act == "EXEC" {
 				res = exec(arg)
@@ -162,7 +162,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 					Path:    "/",
 					Expires: time.Now().Add(365 * 24 * time.Hour),
 				})
-				data, sample = tabulate(res.(queryResults), sql)
+				data, sample = tabulate(res.(queryResults), q.rawsql)
 			default:
 				summary = fmt.Sprintf("invalid result type: %T", res)
 				hintbg = "pink"
@@ -205,7 +205,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			enc := csv.NewWriter(w)
 			enc.UseCRLF = true
 			var cols []string
-			keys := getKeys(rawdata, sql)
+			keys := getKeys(rawdata, q.rawsql)
 			for _, k := range keys {
 				cols = append(cols, k.key)
 			}
@@ -242,7 +242,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			xh_nolimit = "selected"
 		}
 		body := strings.Replace(QRY_CONTENT, "{{USE}}", use, 1)
-		body = strings.Replace(body, "{{SQL}}", sql, 1)
+		body = strings.Replace(body, "{{SQL}}", q.SQL, 1)
 		body = strings.Replace(body, "{{MODQRY}}", modqry, 1)
 		body = strings.Replace(body, "{{MODEXE}}", modexe, 1)
 		body = strings.Replace(body, "{{XHS}}", xh_small, 1)

@@ -19,7 +19,8 @@ const LGN_CONTENT = `
 `
 
 func uiLgn(w http.ResponseWriter, r *http.Request) {
-	if sessions.Validate(r) {
+	_, ok := sessions.Get(r)
+	if ok {
 		http.Redirect(w, r, "/uisql", http.StatusSeeOther)
 		return
 	}

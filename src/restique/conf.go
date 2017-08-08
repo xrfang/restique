@@ -12,6 +12,7 @@ type restiqueConf struct {
 	AUTH_PATH     string
 	DSN_PATH      string
 	HIST_PATH     string
+	HIST_ENTRIES  int
 	OTP_ISSUER    string
 	OTP_TIMEOUT   uint
 	OTP_DIGITS    int
@@ -39,21 +40,14 @@ func parseConfig(fn string) {
 	rc.OTP_DIGITS = 6
 	rc.OTP_ISSUER = "restique"
 	rc.OTP_TIMEOUT = 30
+	rc.HIST_ENTRIES = 10
 	rc.DB_TAG = "[DB]"
 	rc.PID_FILE = "./restique.pid"
+	rc.AUTH_PATH = "./restique_auth.json"
+	rc.DSN_PATH = "./restique_dsns.json"
+	rc.LOG_PATH = "./logs"
+	rc.HIST_PATH = "./history"
 	if fn != "" {
 		assert(conf.ParseFile(fn, &rc))
-	}
-	if rc.AUTH_PATH == "" {
-		rc.AUTH_PATH = "./restique_auth.json"
-	}
-	if rc.DSN_PATH == "" {
-		rc.DSN_PATH = "./restique_dsns.json"
-	}
-	if rc.LOG_PATH == "" {
-		rc.LOG_PATH = "./logs"
-	}
-	if rc.HIST_PATH == "" {
-		rc.HIST_PATH = "./history"
 	}
 }
