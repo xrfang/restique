@@ -2,10 +2,9 @@ package main
 
 import (
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
-	"os"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -29,7 +28,6 @@ func (c *MfuCache) Initialize() {
 }
 
 func (c MfuCache) Get(user, sql string) CacheEntry {
-	fmt.Println("history:", user)
 	sql = strings.TrimSpace(sql)
 	rawsql := sql
 	ident := ""
@@ -72,10 +70,37 @@ func (c MfuCache) Get(user, sql string) CacheEntry {
 		c.entries[user][ident] = entry
 		c.Unlock()
 	}
-	e := json.NewEncoder(os.Stdout)
-	e.SetIndent("", "    ")
-	e.Encode(mfu.entries)
 	return entry
+}
+
+func (c MfuCache) Update(user string, max int) []CacheEntry {
+	c.Lock()
+	entries := c.entries[user]
+	c.Unlock()
+	var res []CacheEntry
+	for _, ce := range entries {
+		res = append(res, ce)
+	}
+	sort.Slice(res, func(i, j int) bool {
+		udiff := res[i].UseCount - res[j].UseCount
+		if udiff > 0 {
+			return true
+		} else if udiff < 0 {
+			return false
+		}
+		return res[i].LastUse.After(res[j].LastUse)
+	})
+	if len(res) > max {
+		res = res[:max]
+	}
+	entries = make(map[string]CacheEntry)
+	for _, ce := range res {
+		entries[ce.Ident] = ce
+	}
+	c.Lock()
+	c.entries[user] = entries
+	c.Unlock()
+	return res
 }
 
 var (

@@ -25,8 +25,8 @@ onkeyup="resize(this)" onfocus="resize(this)">{{SQL}}</textarea>
 <div style="position:absolute;width:100%">
 <span style="float:left">
 {{USE}}<input id="qry" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px;margin:10px" type="submit" name="SUBMIT"/>
-</span><button id="rx" onclick="toggleHistory()"
-type="button" style="padding-top:4px;padding-bottom:4px;padding-left:8px;padding-right:8px;margin-top:10px;font-size:1.1em">&rx;</button>
+</span><button id="rx" onclick="toggleHistory()" type="button" {{RXDISABLED}}
+style="padding-top:4px;padding-bottom:4px;padding-left:8px;padding-right:8px;margin-top:10px;font-size:1.1em">&rx;</button>
 <span style="float:right;margin-top:10px;margin-right:16px">mode:
 <select name="act" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px">
 <option {{MODQRY}}>QUERY</option>
@@ -45,10 +45,8 @@ type="button" style="padding-top:4px;padding-bottom:4px;padding-left:8px;padding
 </div>
 </form>
 <div style="position:relative;margin-top:60px;margin-bottom:-45px;border:inset
-1px;display:none" id="history">
-<div class="oddhist" onclick="use(this)">SELECT * FROM table1</div>
-<div class="evenhist" onclick="use(this)">SELECT id,updated FROM table2
-    WHERE shop_id=102345</div>
+1px pink;display:none" id="history">
+{{HISTORY}}
 </div>
 {{RESULT}}
 <script>
@@ -79,6 +77,7 @@ function use(item) {
 	resize(sql)
 	toggleHistory()
 }
+resize(sql)
 </script>
 `
 )
@@ -114,8 +113,8 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 	}
 	ret := args.Get("ret")
 	act := args.Get("act")
-	s, _ := sessions.Get(r)
-	q := mfu.Get(s.un, args.Get("sql"))
+	session, _ := sessions.Get(r)
+	q := mfu.Get(session.un, args.Get("sql"))
 	var (
 		qry_res string
 		rawdata queryResults
@@ -241,6 +240,23 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		default:
 			xh_nolimit = "selected"
 		}
+		rxdisabled := "disabled"
+		history := ""
+		hist := mfu.Update(session.un, rc.HIST_ENTRIES)
+		if len(hist) > 0 {
+			rxdisabled = ""
+			var entries []string
+			for i, h := range hist {
+				entry := `<div class="%s" onclick="use(this)">%s</div>`
+				if i%2 == 0 {
+					entry = fmt.Sprintf(entry, "evenhist", h.SQL)
+				} else {
+					entry = fmt.Sprintf(entry, "oddhist", h.SQL)
+				}
+				entries = append(entries, entry)
+			}
+			history = strings.Join(entries, "\n")
+		}
 		body := strings.Replace(QRY_CONTENT, "{{USE}}", use, 1)
 		body = strings.Replace(body, "{{SQL}}", q.SQL, 1)
 		body = strings.Replace(body, "{{MODQRY}}", modqry, 1)
@@ -248,6 +264,8 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		body = strings.Replace(body, "{{XHS}}", xh_small, 1)
 		body = strings.Replace(body, "{{XHL}}", xh_large, 1)
 		body = strings.Replace(body, "{{XHU}}", xh_nolimit, 1)
+		body = strings.Replace(body, "{{RXDISABLED}}", rxdisabled, 1)
+		body = strings.Replace(body, "{{HISTORY}}", history, 1)
 		page := strings.Replace(PAGE, "{{VERSION}}", fmt.Sprintf("V%s.%s",
 			_G_REVS, _G_HASH), 1)
 		page = strings.Replace(page, "{{CONTENT}}", body, 1)
