@@ -12,6 +12,7 @@ import (
 )
 
 type CacheEntry struct {
+	Ident    string
 	UseCount int
 	LastUse  time.Time
 	SQL      string
@@ -38,12 +39,12 @@ func (c MfuCache) Get(user, sql string) CacheEntry {
 		if len(ss) == 2 {
 			ident = strings.TrimSpace(ss[0][1:])
 			rawsql = strings.TrimSpace(ss[1])
+			cnt = 10 //named SQL are 10x more important than unamed ones :-)
 		}
 	}
 	if ident == "" {
 		s := rx.ReplaceAllString(rawsql, " ")
 		ident = fmt.Sprintf("%x", md5.Sum([]byte(s)))
-		cnt = 10
 	}
 	var entry CacheEntry
 	c.RLock()
@@ -59,6 +60,7 @@ func (c MfuCache) Get(user, sql string) CacheEntry {
 		c.entries[user] = make(map[string]CacheEntry)
 		c.Unlock()
 	}
+	entry.Ident = ident
 	entry.rawsql = rawsql
 	entry.SQL = sql
 	if time.Now().Day() != entry.LastUse.Day() {
@@ -67,7 +69,7 @@ func (c MfuCache) Get(user, sql string) CacheEntry {
 	entry.LastUse = time.Now()
 	if entry.rawsql != "" {
 		c.Lock()
-		mfu.entries[user][ident] = entry
+		c.entries[user][ident] = entry
 		c.Unlock()
 	}
 	e := json.NewEncoder(os.Stdout)
