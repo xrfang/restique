@@ -47,10 +47,11 @@ const PAGE = `
 .oddrow {background:#e8e8e8}
 .thcell {padding:6px;text-align:left}
 .tdcell {padding:6px;vertical-align:top}
-.oddhist {padding:5px;background:#e8e8e8;cursor:pointer}
-.evenhist {padding:5px;background:#f8f8f8;cursor:pointer}
-.oddhist:hover {background:lightyellow}
-.evenhist:hover {background:lightyellow}
+.hist {padding:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.odd {background:#e8e8e8}
+.even {background:#f8f8f8}
+.hist:hover {background:lightyellow}
+.hist:hover {background:lightyellow}
 </style>
 </head>
 <body>

@@ -24,23 +24,23 @@ const (
 onkeyup="resize(this)" onfocus="resize(this)">{{SQL}}</textarea>
 <div style="position:absolute;width:100%">
 <span style="float:left">
-{{USE}}<input id="qry" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px;margin:10px" type="submit" name="SUBMIT"/>
+{{USE}}<input id="qry" style="height:32px;padding-left:15px;padding-right:15px;margin:10px" type="submit" name="SUBMIT"/>
 </span><button id="rx" onclick="toggleHistory()" type="button" {{RXDISABLED}}
-style="padding-top:4px;padding-bottom:4px;padding-left:8px;padding-right:8px;margin-top:10px;font-size:1.1em">&rx;</button>
+style="height:32px;padding-left:8px;padding-right:8px;margin-top:10px;font-size:1.1em">&rx;</button>
 <span style="float:right;margin-top:10px;margin-right:16px">mode:
-<select name="act" style="padding-top:6px;padding-bottom:6px;padding-left:15px;padding-right:15px">
+<select name="act" style="height:32px;padding-left:15px;padding-right:15px">
 <option {{MODQRY}}>QUERY</option>
 <option {{MODEXE}}>EXEC</option>
 </select></span><span style="float:right;margin:10px">max height:
-<select name="maxh" id="maxh" style="padding:6px">
+<select name="maxh" id="maxh" style="height:32px">
 <option value="12" {{XHS}}>SMALL</option>
 <option value="23" {{XHL}}>LARGE</option>
 <option value="9999" {{XHU}}>UNLIMITED</option>
 </select></span><span style="float:right;margin:10px">result:
-<select name="ret" style="padding:6px">
-<option value="view" {{XHS}}>view in browser</option>
-<option value="csv" {{XHL}}>download CSV</option>
-<option value="json" {{XHU}}>download JSON</option>
+<select name="ret" style="height:32px">
+<option value="view" selected>view in browser</option>
+<option value="csv">download CSV</option>
+<option value="json">download JSON</option>
 </select></span>
 </div>
 </form>
@@ -182,7 +182,7 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 		qry_res = strings.Replace(qry_res, "{{DATA}}", data, 1)
 		qry_res = strings.Replace(qry_res, "{{HINTBG}}", hintbg, 1)
 	}
-	use := `<select name="use" style="padding:6px">`
+	use := `<select name="use" style="height:32px">`
 	var dss []string
 	for ds := range dsns {
 		dss = append(dss, ds)
@@ -249,27 +249,27 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			for i, h := range hist {
 				entry := `<div class="%s" onclick="use(this)">%s</div>`
 				if i%2 == 0 {
-					entry = fmt.Sprintf(entry, "evenhist", h.SQL)
+					entry = fmt.Sprintf(entry, "even hist", h.SQL)
 				} else {
-					entry = fmt.Sprintf(entry, "oddhist", h.SQL)
+					entry = fmt.Sprintf(entry, "odd hist", h.SQL)
 				}
 				entries = append(entries, entry)
 			}
 			history = strings.Join(entries, "\n")
 		}
-		body := strings.Replace(QRY_CONTENT, "{{USE}}", use, 1)
-		body = strings.Replace(body, "{{SQL}}", q.SQL, 1)
-		body = strings.Replace(body, "{{MODQRY}}", modqry, 1)
-		body = strings.Replace(body, "{{MODEXE}}", modexe, 1)
-		body = strings.Replace(body, "{{XHS}}", xh_small, 1)
-		body = strings.Replace(body, "{{XHL}}", xh_large, 1)
-		body = strings.Replace(body, "{{XHU}}", xh_nolimit, 1)
-		body = strings.Replace(body, "{{RXDISABLED}}", rxdisabled, 1)
-		body = strings.Replace(body, "{{HISTORY}}", history, 1)
+		body := strings.Replace(QRY_CONTENT, "{{USE}}", use, -1)
+		body = strings.Replace(body, "{{SQL}}", q.SQL, -1)
+		body = strings.Replace(body, "{{MODQRY}}", modqry, -1)
+		body = strings.Replace(body, "{{MODEXE}}", modexe, -1)
+		body = strings.Replace(body, "{{XHS}}", xh_small, -1)
+		body = strings.Replace(body, "{{XHL}}", xh_large, -1)
+		body = strings.Replace(body, "{{XHU}}", xh_nolimit, -1)
+		body = strings.Replace(body, "{{RXDISABLED}}", rxdisabled, -1)
+		body = strings.Replace(body, "{{HISTORY}}", history, -1)
 		page := strings.Replace(PAGE, "{{VERSION}}", fmt.Sprintf("V%s.%s",
-			_G_REVS, _G_HASH), 1)
-		page = strings.Replace(page, "{{CONTENT}}", body, 1)
-		page = strings.Replace(page, "{{RESULT}}", qry_res, 1)
+			_G_REVS, _G_HASH), -1)
+		page = strings.Replace(page, "{{CONTENT}}", body, -1)
+		page = strings.Replace(page, "{{RESULT}}", qry_res, -1)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, page)
 	}
