@@ -1,6 +1,10 @@
 package main
 
 import (
+	"os"
+	"path"
+	"strings"
+
 	"github.com/xrfang/go-conf"
 )
 
@@ -50,4 +54,18 @@ func parseConfig(fn string) {
 	if fn != "" {
 		assert(conf.ParseFile(fn, &rc))
 	}
+	if rc.IDLE_TIMEOUT > 86400 {
+		rc.IDLE_TIMEOUT = 86400
+	}
+	if rc.SESSION_LIFE > 864000 {
+		rc.SESSION_LIFE = 864000
+	}
+	rc.CLIENT_CIDRS = strings.TrimSpace(rc.CLIENT_CIDRS)
+	if len(rc.CLIENT_CIDRS) > 0 {
+		allowed_cidrs = strings.Split(rc.CLIENT_CIDRS, ",")
+	}
+	assert(os.MkdirAll(path.Dir(rc.AUTH_PATH), 0755))
+	assert(os.MkdirAll(path.Dir(rc.DSN_PATH), 0755))
+	assert(os.MkdirAll(rc.LOG_PATH, 0755))
+	assert(os.MkdirAll(rc.HIST_PATH, 0755))
 }
