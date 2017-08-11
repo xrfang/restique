@@ -8,6 +8,7 @@ import (
 	"gopass"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/mdp/qrterminal"
@@ -63,6 +64,11 @@ func main() {
 	}
 	LoadAuthDb()
 	if *user != "" {
+		rx := regexp.MustCompile(`(?i)^[a-z0-9]{1,16}$`)
+		if !rx.MatchString(*user) {
+			fmt.Println("ERROR: username must be 1~16 alpha-numeric chars.")
+			return
+		}
 		pswd := *pass
 		if *pass == "" {
 			var err error
