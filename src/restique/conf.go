@@ -31,6 +31,7 @@ type restiqueConf struct {
 	OPEN_HATEOAS  bool
 	DB_TAG        string
 	PID_FILE      string
+	CSV_BOM       bool
 }
 
 var rc restiqueConf

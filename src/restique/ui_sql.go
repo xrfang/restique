@@ -201,6 +201,9 @@ func uiSql(w http.ResponseWriter, r *http.Request) {
 			time.Now().Format("2006-01-02_15.04.05"))
 		w.Header().Add("Content-Disposition", "attachment; filename="+fn)
 		if len(rawdata) > 0 {
+			if rc.CSV_BOM {
+				w.Write([]byte("\xEF\xBB\xBF"))
+			}
 			enc := csv.NewWriter(w)
 			enc.UseCRLF = true
 			var cols []string

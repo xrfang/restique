@@ -58,3 +58,7 @@ TLS_PKEY=
 ## when executing SQL against multiple database, restique will add an extra
 ## colume "[DB]" to identify the source of data.
 #DB_TAG=[DB]
+
+## If enabled (default), add UTF8 BOM mark to CSV output. This option is added
+## for better Microsoft Excel interoperability.
+#CSV_BOM=true
