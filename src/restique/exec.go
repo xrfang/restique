@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -9,9 +10,11 @@ import (
 )
 
 func doexe(conn *sql.DB, args url.Values) (queryResults, float64) {
-	start := time.Now()
 	qry := args.Get("sql")
-	qr, err := conn.Exec(qry)
+	ctx, cf := context.WithTimeout(context.Background(), time.Duration(rc.EXEC_TIMEOUT)*time.Second)
+	defer cf()
+	start := time.Now()
+	qr, err := conn.ExecContext(ctx, qry)
 	elapsed := time.Since(start).Seconds()
 	assert(err)
 	var LastInsertId, RowsAffected string

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -9,36 +10,21 @@ import (
 )
 
 func doqry(conn *sql.DB, args url.Values) (queryResults, float64, float64) {
-	var (
-		rows        *sql.Rows
-		timeoutChan <-chan time.Time
-		resultChan  chan error
-		tq, tf      float64
-	)
+	var tq, tf float64
 	qry := args.Get("sql")
-	if rc.QUERY_TIMEOUT > 0 {
-		timeoutChan = time.After(time.Duration(rc.QUERY_TIMEOUT) * time.Second)
-	}
-	resultChan = make(chan error)
+	timeout := time.Duration(rc.QUERY_TIMEOUT) * time.Second
+	ctx, cf := context.WithTimeout(context.Background(), timeout)
+	defer cf()
 	start := time.Now()
-	go func() {
-		var err error
-		rows, err = conn.Query(qry)
-		resultChan <- err
-	}()
-	select {
-	case <-timeoutChan:
-		panic(fmt.Errorf("query timeout exceeded (%d)", rc.QUERY_TIMEOUT))
-	case err := <-resultChan:
-		assert(err)
-		tq = time.Since(start).Seconds()
-	}
+	rows, err := conn.QueryContext(ctx, qry)
+	tq = time.Since(start).Seconds()
+	assert(err)
 	start = time.Now()
 	cols, err := rows.Columns()
 	assert(err)
 	raw := make([][]byte, len(cols))
 	ptr := make([]interface{}, len(cols))
-	for i, _ := range raw {
+	for i := range raw {
 		ptr[i] = &raw[i]
 	}
 	recs := queryResults{}

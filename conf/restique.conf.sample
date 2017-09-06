@@ -16,11 +16,16 @@ TLS_PKEY=
 ## maximum session lifetime (cannot exceeds 86400 seconds)
 #SESSION_LIFE=3600
 
-## /query cannot spend more than QUERY_TIMEOUT seconds, unless it is set
-## to 0, otherwise an HTTP/500 error will be returned.
-#QUERY_TIMEOUT=0
+## /query cannot spend more than QUERY_TIMEOUT seconds. If set to a number
+## less than or equal to 0, the default value (60) will be used.
+#QUERY_TIMEOUT=60
+
+## /exec cannot spend more than QUERY_TIMEOUT seconds. If set to a number
+## less than or equal to 0, the default value (60) will be used.
+#EXEC_TIMEOUT=60
+
 ## /query cannot return more than QUERY_MAXROWS data items, unless it is set
-## to 0, otherwise an HTTP/500 error will be returned.
+## to 0.
 #QUERY_MAXROWS=0
 
 ## user authentication info file name
